@@ -1,0 +1,253 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>O</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+ margin:0;
+ min-height:100vh;
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ background:linear-gradient(135deg,#0b1020,#182849);
+ font-family:Arial,sans-serif;
+ color:white;
+}
+
+.app{
+ width:350px;
+ max-width:95vw;
+ background:#121a2b;
+ border:1px solid #344461;
+ border-radius:22px;
+ padding:20px;
+ box-shadow:0 20px 60px #0008;
+}
+
+.brand{
+ color:#82b6ff;
+ font-size:21px;
+ font-weight:bold;
+ margin-bottom:5px;
+}
+
+.subtitle{
+ color:#9eacc4;
+ font-size:12px;
+ margin-bottom:18px;
+}
+
+#display{
+ width:100%;
+ height:90px;
+ padding:15px;
+ border:1px solid #344461;
+ border-radius:14px;
+ background:#09101d;
+ color:white;
+ font-size:32px;
+ text-align:right;
+ outline:none;
+ margin-bottom:14px;
+}
+
+.buttons{
+ display:grid;
+ grid-template-columns:repeat(4,1fr);
+ gap:9px;
+}
+
+button{
+ height:57px;
+ border:0;
+ border-radius:13px;
+ background:#24324a;
+ color:white;
+ font-size:20px;
+ cursor:pointer;
+ transition:background .15s,transform .1s;
+}
+
+button:hover{background:#354866}
+button:active{transform:scale(.96)}
+
+.operator{background:#285ca6}
+.operator:hover{background:#3679d4}
+.special{background:#49375e}
+.special:hover{background:#654a80}
+.equal{
+ background:#438cff;
+ font-size:25px;
+ grid-row:span 2;
+ height:123px;
+}
+.equal:hover{background:#2865c7}
+.zero{grid-column:span 2}
+
+.footer{
+ text-align:center;
+ color:#8999b4;
+ font-size:11px;
+ margin-top:17px;
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+ <div class="brand">⚡ OPS Studio</div>
+ <div class="subtitle">CALCULATOR · OFFLINE</div>
+
+ <input id="display" value="0" readonly aria-label="Calculator display">
+
+ <div class="buttons">
+  <button class="special" onclick="clearAll()">AC</button>
+  <button class="special" onclick="backspace()">⌫</button>
+  <button class="special" onclick="percent()">%</button>
+  <button class="operator" onclick="operator('/')">÷</button>
+
+  <button onclick="digit('7')">7</button>
+  <button onclick="digit('8')">8</button>
+  <button onclick="digit('9')">9</button>
+  <button class="operator" onclick="operator('*')">×</button>
+
+  <button onclick="digit('4')">4</button>
+  <button onclick="digit('5')">5</button>
+  <button onclick="digit('6')">6</button>
+  <button class="operator" onclick="operator('-')">−</button>
+
+  <button onclick="digit('1')">1</button>
+  <button onclick="digit('2')">2</button>
+  <button onclick="digit('3')">3</button>
+  <button class="operator" onclick="operator('+')">+</button>
+
+  <button class="zero" onclick="digit('0')">0</button>
+  <button onclick="decimal()">.</button>
+  <button class="equal" onclick="calculate()">=</button>
+ </div>
+
+ <div class="footer">OPS Studio Calculator v1.0<br>Made for everyday maths</div>
+</div>
+
+<script>
+const display=document.getElementById("display");
+
+let current="0";
+let previous=null;
+let operation=null;
+let fresh=true;
+
+function show(){
+ display.value=current;
+}
+
+function digit(n){
+ if(fresh){
+  current=n;
+  fresh=false;
+ }else if(current==="0"){
+  current=n;
+ }else if(current.length<16){
+  current+=n;
+ }
+ show();
+}
+
+function decimal(){
+ if(fresh){
+  current="0.";
+  fresh=false;
+ }else if(!current.includes(".")){
+  current+=".";
+ }
+ show();
+}
+
+function operator(op){
+ if(previous!==null&&!fresh){
+  calculate();
+ }
+ previous=Number(current);
+ operation=op;
+ fresh=true;
+}
+
+function calculate(){
+ if(previous===null||operation===null)return;
+
+ const a=previous;
+ const b=Number(current);
+ let result;
+
+ switch(operation){
+  case "+":result=a+b;break;
+  case "-":result=a-b;break;
+  case "*":result=a*b;break;
+  case "/":
+   if(b===0){
+    current="Cannot divide by zero";
+    previous=null;
+    operation=null;
+    fresh=true;
+    show();
+    return;
+   }
+   result=a/b;
+   break;
+ }
+
+ if(!Number.isFinite(result)){
+  current="Error";
+ }else{
+  current=String(Number(result.toPrecision(12)));
+ }
+
+ previous=null;
+ operation=null;
+ fresh=true;
+ show();
+}
+
+function clearAll(){
+ current="0";
+ previous=null;
+ operation=null;
+ fresh=true;
+ show();
+}
+
+function backspace(){
+ if(fresh)return;
+ current=current.length>1?current.slice(0,-1):"0";
+ if(current==="-")current="0";
+ show();
+}
+
+function percent(){
+ current=String(Number(current)/100);
+ show();
+}
+
+document.addEventListener("keydown",e=>{
+ if(e.key>="0"&&e.key<="9")digit(e.key);
+ else if(e.key===".")decimal();
+ else if(["+","-","*","/"].includes(e.key)){
+  operator(e.key);
+ }else if(e.key==="Enter"||e.key==="="){
+  e.preventDefault();
+  calculate();
+ }else if(e.key==="Backspace"){
+  backspace();
+ }else if(e.key==="Escape"){
+  clearAll();
+ }
+});
+</script>
+</body>
+</html>
