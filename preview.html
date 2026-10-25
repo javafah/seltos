@@ -3,472 +3,147 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OPS Studio - Dino Dash</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Windows 10 Web Desktop</title>
 <style>
 *{box-sizing:border-box}
-body{
-  margin:0;padding:20px;min-height:100vh;
-  display:flex;justify-content:center;align-items:center;
-  background:#08111f;color:#f2f7ff;
-  font-family:Segoe UI,Arial,sans-serif
+body{margin:0;font-family:"Segoe UI",Arial,sans-serif;color:white;overflow:hidden}
+#desktop{
+ height:100vh;
+ background:linear-gradient(135deg,#0879c9,#004e92 55%,#001d50);
+ position:relative;
 }
-.app{width:min(100%,1000px)}
-.brand{color:#4ce1ff;font-weight:bold;letter-spacing:3px}
-h1{margin:8px 0;font-size:clamp(30px,5vw,44px)}
-.sub{color:#a9bbd5;margin-bottom:20px}
-.panel{background:#111e31;border:1px solid #293c59;border-radius:20px;padding:16px}
-.options{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:15px}
-label{color:#b9c9df}
-select,button{
-  background:#263b59;color:white;border:1px solid #405777;
-  border-radius:10px;padding:11px 14px;font-size:14px;font-weight:bold
+#icons{padding:18px;display:grid;gap:25px;width:95px}
+.app{width:75px;text-align:center;cursor:pointer;padding:6px;border:1px solid transparent}
+.app:hover{background:#ffffff25;border-color:#ffffff55}
+.app .emoji{font-size:34px;display:block;margin-bottom:5px}
+#taskbar{
+ position:absolute;bottom:0;left:0;right:0;height:48px;
+ background:#171717eF;display:flex;align-items:center;gap:8px;
+ padding:0 10px
 }
-button{cursor:pointer}
-button:hover{filter:brightness(1.2)}
-.primary{background:#2479ff;border-color:#2479ff}
-.on{background:#12875d;border-color:#12875d}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
-.stat{background:#091525;border-radius:12px;text-align:center;padding:12px}
-.stat small{display:block;color:#a9bbd5;margin-bottom:5px}
-.stat strong{font-size:24px}
-canvas{display:block;width:100%;height:auto;border-radius:12px;background:#9ce4ff;touch-action:manipulation}
-.controls{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
-.help{font-size:13px;line-height:1.7;color:#a9bbd5;margin-top:13px}
-#message{color:#55e5ff;font-weight:bold}
-@media(max-width:500px){
-  .stats{gap:5px}.stat{padding:8px 2px}
-  .stat strong{font-size:19px}
-  .controls button{flex:1}
+button{cursor:pointer;color:white;border:0;font:inherit}
+#startBtn{height:42px;width:45px;background:transparent;font-size:24px}
+#startBtn:hover{background:#ffffff24}
+#search{background:#333;border:1px solid #555;padding:8px;width:190px;color:white}
+#clock{margin-left:auto;text-align:right;font-size:12px;padding:0 8px}
+#startMenu{
+ display:none;position:absolute;bottom:48px;left:0;width:min(350px,95vw);
+ height:430px;background:#202020f5;padding:18px;
+ box-shadow:0 0 20px #0007
 }
+#startMenu h2{font-weight:400;font-size:20px}
+.startApp{display:block;width:100%;padding:12px;text-align:left;background:transparent}
+.startApp:hover{background:#ffffff25}
+#window{
+ display:none;position:absolute;left:50%;top:45%;
+ transform:translate(-50%,-50%);width:min(520px,92vw);
+ min-height:230px;background:#f1f1f1;color:#222;
+ box-shadow:0 10px 40px #0008
+}
+#titlebar{background:#0078d7;color:white;padding:10px;display:flex}
+#titlebar span{flex:1}
+#titlebar button{background:transparent;padding:0 8px}
+#content{padding:20px}
+#content button{background:#0078d7;padding:9px 14px;margin-top:8px}
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="brand">OPS STUDIO ARCADE</div>
-  <h1>🦖 Dino Dash</h1>
-  <div class="sub">Choose your speed. Run, jump, and beat your best!</div>
-
-  <div class="panel">
-    <div class="options">
-      <label for="difficulty">Starting speed:</label>
-      <select id="difficulty">
-        <option value="3">🐢 Slow</option>
-        <option value="5" selected>🏃 Normal</option>
-        <option value="8">⚡ Fast</option>
-      </select>
-      <button class="primary" id="start">▶ Start / Restart</button>
-    </div>
-
-    <div class="stats">
-      <div class="stat"><small>SCORE</small><strong id="score">0</strong></div>
-      <div class="stat"><small>BEST</small><strong id="best">0</strong></div>
-      <div class="stat"><small>SPEED</small><strong id="speed">1.0x</strong></div>
-    </div>
-
-    <canvas id="game" width="960" height="360"></canvas>
-
-    <div class="controls">
-      <button id="jump">⬆ JUMP</button>
-      <button id="auto">🤖 Auto Jump: OFF</button>
-      <button id="pause">⏸ Pause</button>
-    </div>
-
-    <div class="help">
-      <span id="message">Choose a speed and press Start!</span><br>
-      Controls: Space / ↑ / click / tap to jump. Press P to pause.<br>
-      <b>Fair Play:</b> No shield, no invincibility, and no collision protection.
-    </div>
+<div id="desktop">
+ <div id="icons">
+  <div class="app" onclick="openApp('About This PC')">
+   <span class="emoji">🖥️</span>This PC
   </div>
+  <div class="app" onclick="openApp('Recycle Bin')">
+   <span class="emoji">🗑️</span>Recycle Bin
+  </div>
+  <div class="app" onclick="openApp('Notepad')">
+   <span class="emoji">📝</span>Notepad
+  </div>
+ </div>
+
+ <div id="startMenu">
+  <h2>Start</h2>
+  <button class="startApp" onclick="openApp('About This PC')">🖥️ This PC</button>
+  <button class="startApp" onclick="openApp('Notepad')">📝 Notepad</button>
+  <button class="startApp" onclick="openApp('Settings')">⚙️ Settings</button>
+  <button class="startApp" onclick="openApp('Calculator')">🧮 Calculator</button>
+  <button class="startApp" onclick="openApp('Power')">⏻ Power options</button>
+ </div>
+
+ <div id="window">
+  <div id="titlebar">
+   <span id="windowTitle">App</span>
+   <button onclick="closeApp()">✕</button>
+  </div>
+  <div id="content"></div>
+ </div>
+
+ <div id="taskbar">
+  <button id="startBtn" onclick="toggleStart()" title="Start">⊞</button>
+  <input id="search" placeholder="Type here to search">
+  <span>🌐</span>
+  <span>📁</span>
+  <div id="clock"></div>
+ </div>
 </div>
 
 <script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
-const $ = id => document.getElementById(id);
+const startMenu=document.getElementById('startMenu');
+const win=document.getElementById('window');
+const content=document.getElementById('content');
 
-let running = false;
-let paused = false;
-let gameOver = false;
-let autoJump = false;
-let score = 0;
-let best = 0;
-let frame = 0;
-let speed = 5;
-let startingSpeed = 5;
-let lastTime = 0;
-let groundOffset = 0;
-let obstacles = [];
-let clouds = [];
-let animationId = 0;
-let nextObstacleDistance = 390;
-
-try {
-  best = Number(localStorage.getItem("opsDinoDashBest") || 0);
-} catch(e) {}
-$("best").textContent = best;
-
-const groundY = 292;
-const dino = {
-  x: 110,
-  y: groundY - 54,
-  w: 48,
-  h: 54,
-  vy: 0,
-  jumping: false
-};
-
-function updateStats() {
-  $("score").textContent = Math.floor(score);
-  $("speed").textContent = (speed / 5).toFixed(1) + "x";
+function toggleStart(){
+ startMenu.style.display=
+  startMenu.style.display==='block'?'none':'block';
 }
+function closeApp(){win.style.display='none'}
+function openApp(name){
+ startMenu.style.display='none';
+ document.getElementById('windowTitle').textContent=name;
+ win.style.display='block';
 
-function resetGame() {
-  cancelAnimationFrame(animationId);
-
-  startingSpeed = Number($("difficulty").value);
-  speed = startingSpeed;
-  score = 0;
-  frame = 0;
-  groundOffset = 0;
-  obstacles = [];
-  nextObstacleDistance = 390;
-  paused = false;
-  gameOver = false;
-  running = true;
-  lastTime = 0;
-
-  dino.y = groundY - dino.h;
-  dino.vy = 0;
-  dino.jumping = false;
-
-  $("pause").textContent = "⏸ Pause";
-  $("message").textContent = "Go! Jump over the cactuses.";
-  updateStats();
-
-  animationId = requestAnimationFrame(loop);
+ if(name==='Notepad'){
+  content.innerHTML=
+   '<h2>Notepad</h2><textarea style="width:100%;height:120px" placeholder="Type something..."></textarea>';
+ }else if(name==='Settings'){
+  content.innerHTML=
+   '<h2>Settings</h2><p>System · Personalization · Apps</p><p>This is a desktop simulation.</p>';
+ }else if(name==='Calculator'){
+  content.innerHTML=
+   '<h2>Calculator</h2><input id="calc" type="text" placeholder="Example: 2+2"><br><button onclick="calculate()">Calculate</button><p id="answer"></p>';
+ }else if(name==='Power'){
+  content.innerHTML=
+   '<h2>Power options</h2><p>This simulation cannot shut down your computer.</p><button onclick="closeApp()">Cancel</button>';
+ }else if(name==='Recycle Bin'){
+  content.innerHTML='<h2>Recycle Bin</h2><p>Recycle Bin is empty.</p>';
+ }else{
+  content.innerHTML='<h2>'+name+'</h2><p>Welcome to your Windows-style desktop!</p>';
+ }
 }
-
-function jump() {
-  if (gameOver) {
-    resetGame();
-    return;
-  }
-
-  if (!running) {
-    resetGame();
-    return;
-  }
-
-  if (paused || dino.jumping) return;
-
-  dino.vy = -15;
-  dino.jumping = true;
+function calculate(){
+ try{
+  const s=document.getElementById('calc').value;
+  if(!/^[0-9+*/().% -]+$/.test(s))throw Error();
+  document.getElementById('answer').textContent=Function('"use strict";return ('+s+')')();
+ }catch(e){document.getElementById('answer').textContent='Invalid calculation'}
 }
-
-function addObstacle(x) {
-  const h = 35 + Math.random() * 12;
-  obstacles.push({
-    x: x,
-    y: groundY - h,
-    w: 23,
-    h: h
-  });
-
-  // Keep a generous gap before the next cactus.
-  nextObstacleDistance = 350 + Math.random() * 130;
+function updateClock(){
+ const d=new Date();
+ document.getElementById('clock').innerHTML=
+  d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+'<br>'+
+  d.toLocaleDateString();
 }
-
-function drawCloud(x, y) {
-  ctx.fillStyle = "rgba(255,255,255,.88)";
-  ctx.beginPath();
-  ctx.arc(x, y, 16, 0, Math.PI * 2);
-  ctx.arc(x + 19, y - 8, 20, 0, Math.PI * 2);
-  ctx.arc(x + 39, y, 15, 0, Math.PI * 2);
-  ctx.fill();
-}
-
-function drawDino() {
-  const x = dino.x;
-  const y = dino.y;
-
-  ctx.fillStyle = "#16774d";
-  ctx.fillRect(x + 5, y + 19, 30, 29);
-  ctx.fillRect(x + 22, y + 2, 24, 23);
-  ctx.fillRect(x + 35, y + 12, 16, 9);
-  ctx.fillRect(x, y + 27, 12, 8);
-
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(x + 38, y + 7, 5, 5);
-
-  ctx.fillStyle = "#071b15";
-  ctx.fillRect(x + 41, y + 8, 2, 3);
-
-  ctx.fillStyle = "#105438";
-
-  if (dino.jumping) {
-    ctx.fillRect(x + 10, y + 43, 8, 11);
-    ctx.fillRect(x + 27, y + 43, 8, 11);
-  } else if (Math.floor(frame / 5) % 2 === 0) {
-    ctx.fillRect(x + 10, y + 43, 8, 11);
-    ctx.fillRect(x + 27, y + 43, 8, 7);
-  } else {
-    ctx.fillRect(x + 10, y + 43, 8, 7);
-    ctx.fillRect(x + 27, y + 43, 8, 11);
-  }
-}
-
-function drawScene() {
-  const sky = ctx.createLinearGradient(0, 0, 0, 360);
-  sky.addColorStop(0, "#65ceff");
-  sky.addColorStop(1, "#e3fbff");
-
-  ctx.fillStyle = sky;
-  ctx.fillRect(0, 0, 960, 360);
-
-  ctx.fillStyle = "#ffe779";
-  ctx.beginPath();
-  ctx.arc(820, 65, 29, 0, Math.PI * 2);
-  ctx.fill();
-
-  if (!clouds.length) {
-    clouds = [
-      {x:160, y:75},
-      {x:480, y:120},
-      {x:740, y:85}
-    ];
-  }
-
-  for (const c of clouds) {
-    drawCloud(c.x, c.y);
-
-    if (running && !paused && !gameOver) {
-      c.x -= speed * 0.10;
-    }
-
-    if (c.x < -65) c.x = 1000;
-  }
-
-  ctx.fillStyle = "#9bdda6";
-  ctx.beginPath();
-  ctx.moveTo(0, 255);
-
-  for (let x = 0; x <= 960; x += 60) {
-    ctx.lineTo(x, 225 + Math.sin(x * 0.015 + frame * 0.003) * 15);
-  }
-
-  ctx.lineTo(960, groundY);
-  ctx.lineTo(0, groundY);
-  ctx.fill();
-
-  ctx.fillStyle = "#d9c18c";
-  ctx.fillRect(0, groundY, 960, 68);
-
-  ctx.fillStyle = "#4c9448";
-  ctx.fillRect(0, groundY, 960, 7);
-
-  ctx.strokeStyle = "#a38b60";
-  ctx.lineWidth = 3;
-
-  for (let x = -30; x < 1000; x += 48) {
-    const xx = x - groundOffset % 48;
-    ctx.beginPath();
-    ctx.moveTo(xx, groundY + 23);
-    ctx.lineTo(xx + 18, groundY + 23);
-    ctx.stroke();
-  }
-
-  for (const o of obstacles) {
-    ctx.fillStyle = "#21854b";
-    ctx.fillRect(o.x + 7, o.y, o.w - 14, o.h);
-    ctx.fillRect(o.x, o.y + o.h * 0.35, o.w * 0.48, 8);
-    ctx.fillRect(o.x, o.y + o.h * 0.35 - 7, 7, 16);
-    ctx.fillRect(o.x + o.w * 0.55, o.y + o.h * 0.60, o.w * 0.45, 8);
-    ctx.fillRect(o.x + o.w - 7, o.y + o.h * 0.60 - 6, 7, 14);
-  }
-
-  drawDino();
-
-  if (!running && !gameOver) {
-    ctx.fillStyle = "rgba(5,20,40,.16)";
-    ctx.fillRect(0, 0, 960, 360);
-    ctx.fillStyle = "#12364b";
-    ctx.textAlign = "center";
-    ctx.font = "bold 36px Segoe UI, Arial";
-    ctx.fillText("DINO DASH", 480, 150);
-    ctx.font = "bold 19px Segoe UI, Arial";
-    ctx.fillText("Press START to run!", 480, 190);
-  }
-
-  if (paused) {
-    ctx.fillStyle = "rgba(5,20,40,.45)";
-    ctx.fillRect(0, 0, 960, 360);
-    ctx.fillStyle = "white";
-    ctx.textAlign = "center";
-    ctx.font = "bold 36px Segoe UI, Arial";
-    ctx.fillText("PAUSED", 480, 180);
-  }
-
-  if (gameOver) {
-    ctx.fillStyle = "rgba(5,20,40,.42)";
-    ctx.fillRect(0, 0, 960, 360);
-    ctx.fillStyle = "white";
-    ctx.textAlign = "center";
-    ctx.font = "bold 36px Segoe UI, Arial";
-    ctx.fillText("GAME OVER!", 480, 155);
-    ctx.font = "bold 19px Segoe UI, Arial";
-    ctx.fillText("Press Start or Space to try again", 480, 195);
-  }
-}
-
-function collision(a, b) {
-  return (
-    a.x + 10 < b.x + b.w &&
-    a.x + a.w - 8 > b.x &&
-    a.y + 9 < b.y + b.h &&
-    a.y + a.h > b.y + 3
-  );
-}
-
-function finishGame() {
-  running = false;
-  gameOver = true;
-
-  best = Math.max(best, Math.floor(score));
-  $("best").textContent = best;
-
-  try {
-    localStorage.setItem("opsDinoDashBest", best);
-  } catch(e) {}
-
-  $("message").textContent = "Game over! Score: " + Math.floor(score);
-  drawScene();
-}
-
-function loop(timestamp) {
-  if (!running || paused || gameOver) {
-    drawScene();
-    return;
-  }
-
-  const dt = lastTime
-    ? Math.min((timestamp - lastTime) / 16.67, 1.7)
-    : 1;
-
-  lastTime = timestamp;
-  frame += dt;
-
-  // Speed grows slowly, with a maximum to keep the game playable.
-  speed = Math.min(startingSpeed + score / 500, startingSpeed + 3.5);
-  score += dt * speed * 0.10;
-  groundOffset += speed * dt;
-
-  // Dinosaur gravity and jumping.
-  dino.vy += 0.78 * dt;
-  dino.y += dino.vy * dt;
-
-  if (dino.y >= groundY - dino.h) {
-    dino.y = groundY - dino.h;
-    dino.vy = 0;
-    dino.jumping = false;
-  }
-
-  // Spawn a new cactus only after the safe gap has passed.
-  if (obstacles.length === 0) {
-    addObstacle(960 + 40);
-  } else {
-    const last = obstacles[obstacles.length - 1];
-
-    if (last.x < 960 - nextObstacleDistance) {
-      addObstacle(960 + 40);
-    }
-  }
-
-  for (const o of obstacles) {
-    o.x -= speed * dt;
-  }
-
-  obstacles = obstacles.filter(o => o.x + o.w > -10);
-
-  // Auto Jump jumps when a cactus is approaching.
-  // It does not prevent collisions or make the dinosaur invincible.
-  if (autoJump && !dino.jumping) {
-    const next = obstacles.find(o =>
-      o.x + o.w > dino.x &&
-      o.x < dino.x + 180
-    );
-
-    if (next) jump();
-  }
-
-  // Real collision: touching a cactus ends the game.
-  for (const o of obstacles) {
-    if (collision(dino, o)) {
-      finishGame();
-      return;
-    }
-  }
-
-  updateStats();
-  drawScene();
-
-  animationId = requestAnimationFrame(loop);
-}
-
-$("start").addEventListener("click", resetGame);
-$("jump").addEventListener("click", jump);
-
-$("auto").addEventListener("click", () => {
-  autoJump = !autoJump;
-
-  $("auto").textContent = autoJump
-    ? "🤖 Auto Jump: ON"
-    : "🤖 Auto Jump: OFF";
-
-  $("auto").classList.toggle("on", autoJump);
-
-  $("message").textContent = autoJump
-    ? "Auto Jump is ON. Collisions still count!"
-    : "Auto Jump is OFF.";
-
-  if (autoJump && !running && !gameOver) resetGame();
+updateClock();setInterval(updateClock,1000);
+document.getElementById('search').addEventListener('keydown',e=>{
+ if(e.key==='Enter'){
+  const q=e.target.value.trim();
+  if(q)openApp(q);
+ }
 });
-
-$("pause").addEventListener("click", () => {
-  if (!running && !paused) return;
-
-  paused = !paused;
-
-  $("pause").textContent = paused
-    ? "▶ Resume"
-    : "⏸ Pause";
-
-  $("message").textContent = paused
-    ? "Game paused."
-    : "Back to the race!";
-
-  if (!paused) {
-    lastTime = 0;
-    animationId = requestAnimationFrame(loop);
-  } else {
-    drawScene();
-  }
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'){closeApp();startMenu.style.display='none'}
 });
-
-document.addEventListener("keydown", e => {
-  if (e.code === "Space" || e.code === "ArrowUp") {
-    e.preventDefault();
-    jump();
-  }
-
-  if (e.code === "KeyP") {
-    $("pause").click();
-  }
-});
-
-canvas.addEventListener("pointerdown", jump);
-
-drawScene();
 </script>
 </body>
 </html>
