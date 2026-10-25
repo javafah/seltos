@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BlockWorld 3D</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#101820;color:#fff;font:15px system-ui,Segoe UI,Arial;overflow:hidden}#game{display:block;width:100vw;height:100vh;image-rendering:pixelated;cursor:crosshair}#top{position:fixed;top:12px;left:12px;background:#101820bb;border:2px solid #ffffff44;border-radius:8px;padding:10px 13px;max-width:330px;line-height:1.5;text-shadow:1px 2px #000}#top b{color:#9dff7b}#cross{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);font-size:25px;color:white;text-shadow:0 1px 4px #000;pointer-events:none}#bar{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:5px;padding:7px;background:#111a;border:2px solid #ffffff66;border-radius:9px}.slot{width:55px;height:55px;border:2px solid #777;background:#222b;display:grid;place-items:center;position:relative;font-size:26px}.slot small{position:absolute;top:1px;left:4px;font-size:11px;color:#fff}.slot.active{border:3px solid #fff;transform:translateY(-5px);background:#52634eaa}.swatch{width:25px;height:25px;border:2px solid #ffffff55;box-shadow:inset -4px -4px #0003,inset 4px 4px #fff2}.hint{position:fixed;bottom:92px;left:50%;transform:translateX(-50%);background:#101820bb;border-radius:7px;padding:7px 12px;white-space:nowrap;text-align:center;font-size:13px}#welcome{position:fixed;inset:0;display:grid;place-items:center;background:#09121bcc;padding:20px}#card{max-width:490px;background:#182536;border:2px solid #718ba4;border-radius:15px;padding:25px;box-shadow:0 15px 60px #0008}h1{margin:0 0 8px;font-size:clamp(28px,6vw,43px)}p{line-height:1.5;color:#d2deea}.play{background:#78bd55;color:#10200b;border:0;border-radius:8px;padding:12px 20px;font-size:17px;font-weight:800;cursor:pointer}.tiny{font-size:12px;color:#b9c8d8}@media(max-width:520px){#bar{gap:2px;bottom:12px}.slot{width:39px;height:45px;font-size:21px}.hint{bottom:70px;font-size:11px}#top{font-size:12px;max-width:250px}}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas><div id="cross">+</div>
+<div id="top"><b>BLOCKWORLD 3D</b><br>WASD move · Mouse look<br>Left-click mine · Right-click place<br>1–6 or wheel: choose block</div>
+<div class="hint" id="status">Explore the blocky world!</div><div id="bar"></div>
+<div id="welcome"><div id="card"><h1>🟩 BlockWorld 3D</h1><p>A tiny Minecraft-inspired voxel sandbox. Explore a blocky island, break blocks, and place your own. Your world runs locally in this page.</p><p><b>Controls</b><br>WASD — move · Mouse — look around<br>Left-click — break block · Right-click — place block<br>1–6 / mouse wheel — select block · Esc — release mouse</p><button class="play" id="play">Enter World</button><p class="tiny">No account or downloads needed. Best on a computer with a mouse and keyboard.</p></div></div>
+<script>
+(()=>{
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d',{alpha:false}),status=document.getElementById('status'),bar=document.getElementById('bar');
+let W=innerWidth,H=innerHeight, horizon=H*.48, focal=H*.8;
+function resize(){W=innerWidth;H=innerHeight;canvas.width=Math.max(320,W);canvas.height=Math.max(240,H);horizon=H*.48;focal=H*.8}addEventListener('resize',resize);resize();
+const types=[
+{name:'Grass',color:'#64a844',top:'#78c85b',side:'#477d35',icon:'🟩'},
+{name:'Dirt',color:'#98633d',top:'#a9784b',side:'#70472e',icon:'🟫'},
+{name:'Stone',color:'#8b9299',top:'#b5bbc0',side:'#686f77',icon:'⬜'},
+{name:'Wood',color:'#a87943',top:'#c49a5f',side:'#78502d',icon:'🪵'},
+{name:'Sand',color:'#e3d18b',top:'#f0dfa0',side:'#bba96a',icon:'🟨'},
+{name:'Brick',color:'#b94e3e',top:'#d46b55',side:'#83352d',icon:'🟥'}
+];
+const size=32, world=Array.from({length:size},()=>Array(size).fill(null));
+function put(x,z,t){if(x>=0&&z>=0&&x<size&&z<size)world[z][x]=t}
+for(let z=0;z<size;z++)for(let x=0;x<size;x++){let d=Math.hypot(x-16,z-16);if(d<14+Math.sin(x*.7)*1.1+Math.cos(z*.5)*.8){let t=d>11?4:(Math.random()<.11?2:0);put(x,z,t);if(t===0&&Math.random()<.08)put(x,z,1);}}
+for(let i=0;i<18;i++){let x=4+Math.random()*24|0,z=4+Math.random()*24|0;if(world[z][x]===0){put(x,z,3);if(z+1<size)put(x,z+1,3);}}
+let px=16.5,pz=16.5,angle=0,pitch=0,selected=0,keys={},locked=false;
+const slots=[];
+types.forEach((t,i)=>{let el=document.createElement('div');el.className='slot';el.innerHTML='<small>'+(i+1)+'</small><div class="swatch" style="background:'+t.top+'"></div>';el.title=t.name;bar.appendChild(el);slots.push(el)});
+function updateBar(){slots.forEach((s,i)=>s.classList.toggle('active',i===selected));status.textContent='Selected: '+types[selected].name+' · Blocks are unlimited'}
+updateBar();
+document.getElementById('play').onclick=()=>{document.getElementById('welcome').style.display='none';canvas.requestPointerLock?.()};
+canvas.addEventListener('click',()=>{if(document.getElementById('welcome').style.display!=='none')return;if(document.pointerLockElement!==canvas)canvas.requestPointerLock?.();else mine()});
+document.addEventListener('pointerlockchange',()=>locked=document.pointerLockElement===canvas);
+document.addEventListener('mousemove',e=>{if(locked){angle+=e.movementX*.0025;pitch=Math.max(-.7,Math.min(.7,pitch-e.movementY*.002))}});
+document.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key>='1'&&e.key<='6'){selected=Number(e.key)-1;updateBar()}});
+document.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+canvas.addEventListener('contextmenu',e=>{e.preventDefault();place()});
+canvas.addEventListener('mousedown',e=>{if(e.button===2){e.preventDefault();place()}});
+canvas.addEventListener('wheel',e=>{selected=(selected+(e.deltaY>0?1:5))%6;updateBar()},{passive:true});
+function solid(x,z){return x<0||z<0||x>=size||z>=size||world[z][x]!==null}
+function ray(max=6){let dx=Math.sin(angle),dz=Math.cos(angle);for(let d=.25;d<max;d+=.06){let x=Math.floor(px+dx*d),z=Math.floor(pz+dz*d);if(x<0||z<0||x>=size||z>=size)break;if(world[z][x]!==null)return{x,z,d};}return null}
+function mine(){let r=ray();if(r){world[r.z][r.x]=null;status.textContent='Mined '+types[0].name+' block!'}else status.textContent='No block in reach'}
+function place(){if(!locked)return;let r=ray();if(!r){status.textContent='Aim at a nearby block to place next to it';return}let dx=Math.sin(angle),dz=Math.cos(angle),x=Math.floor(px+dx*Math.max(.1,r.d-.4)),z=Math.floor(pz+dz*Math.max(.1,r.d-.4));if(x>=0&&z>=0&&x<size&&z<size&&world[z][x]===null&&Math.hypot(x+.5-px,z+.5-pz)>.8){world[z][x]=selected;status.textContent='Placed '+types[selected].name+' block'}else status.textContent='Cannot place there'}
+function shade(hex,f){let n=parseInt(hex.slice(1),16),r=Math.min(255,((n>>16)&255)*f),g=Math.min(255,((n>>8)&255)*f),b=Math.min(255,(n&255)*f);return 'rgb('+r+','+g+','+b+')'}
+function draw(){
+ctx.fillStyle='#84c9f2';ctx.fillRect(0,0,W,H);let sky=ctx.createLinearGradient(0,0,0,H*.55);sky.addColorStop(0,'#60aee8');sky.addColorStop(1,'#d1efff');ctx.fillStyle=sky;ctx.fillRect(0,0,W,H*.55);
+ctx.fillStyle='#f8e6a0';ctx.beginPath();ctx.arc(W*.78,H*.16,Math.min(W,H)*.055,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#73b95a';ctx.fillRect(0,horizon,W,H-horizon);
+const strips=Math.max(220,Math.floor(W/2));for(let i=0;i<strips;i++){let sx=i*W/strips,cam=(sx/W-.5),ra=angle+Math.atan(cam*W/focal),dx=Math.sin(ra),dz=Math.cos(ra);let mx=Math.floor(px),mz=Math.floor(pz),ddx=Math.abs(1/(dx||.0001)),ddz=Math.abs(1/(dz||.0001)),stepX=dx<0?-1:1,stepZ=dz<0?-1:1,sideX=(dx<0?px-mx:mx+1-px)*ddx,sideZ=(dz<0?pz-mz:mz+1-pz)*ddz,side=0,hit=null;
+for(let n=0;n<45;n++){if(sideX<sideZ){sideX+=ddx;mx+=stepX;side=0}else{sideZ+=ddz;mz+=stepZ;side=1}if(mx<0||mz<0||mx>=size||mz>=size)break;if(world[mz][mx]!==null){hit={x:mx,z:mz,t:side===0?sideX-ddx:sideZ-ddz,side,block:world[mz][mx]};break}}
+if(!hit)continue;let dist=Math.max(.15,hit.t*Math.cos(ra-angle)),wallH=focal/dist,top=horizon+pitch*H-wallH*.52,bottom=top+wallH;let b=types[hit.block];let col=hit.side?b.side:b.color;let fog=Math.max(.3,1-dist/24);ctx.fillStyle=shade(col,fog*(hit.side?.82:1));ctx.fillRect(sx,top,W/strips+1,Math.min(H,bottom)-top);
+if(top>0){ctx.fillStyle=shade(b.top,fog);ctx.fillRect(sx,top,W/strips+1,Math.max(1,wallH*.035))}
+if(bottom<H){ctx.fillStyle=shade('#477d35',Math.max(.3,1-dist/30));ctx.fillRect(sx,bottom,W/strips+1,H-bottom)}
+}}
+function loop(){let speed=keys.shift?0.035:.075,forward=(keys.w?1:0)-(keys.s?1:0),strafe=(keys.d?1:0)-(keys.a?1:0);if(forward||strafe){let nx=px+Math.sin(angle)*forward*speed+Math.cos(angle)*strafe*speed,nz=pz+Math.cos(angle)*forward*speed-Math.sin(angle)*strafe*speed;if(!solid(Math.floor(nx+.18),Math.floor(pz))&&!solid(Math.floor(nx-.18),Math.floor(pz)))px=nx;if(!solid(Math.floor(px),Math.floor(nz+.18))&&!solid(Math.floor(px),Math.floor(nz-.18)))pz=nz;}
+draw();requestAnimationFrame(loop)}
+loop();
+})();
+</script>
+</body>
+</html>
