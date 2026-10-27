@@ -1,0 +1,516 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UPRUSH: Nitro Racing</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #10131b;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+h1 {
+  color: #00ffcc;
+  text-shadow: 0 0 15px #00ffcc;
+  margin: 14px 0 6px;
+}
+
+#info {
+  margin: 10px;
+  font-weight: bold;
+}
+
+canvas {
+  display: block;
+  width: min(94vw, 420px);
+  height: auto;
+  margin: 10px auto;
+  border: 3px solid #00ffcc;
+  border-radius: 8px;
+  background: #333;
+}
+
+.controls {
+  max-width: 450px;
+  margin: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+}
+
+button {
+  padding: 13px 15px;
+  border: 2px solid #00ffcc;
+  border-radius: 10px;
+  background: #202a36;
+  color: white;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+}
+
+button:active {
+  background: #00ffcc;
+  color: #10131b;
+}
+
+#start, #restart {
+  background: #00ffcc;
+  color: #10131b;
+}
+
+#nitro {
+  background: #8c1800;
+  border-color: #ff4c00;
+}
+
+.small {
+  font-size: 13px;
+  color: #bdc6d5;
+  padding: 8px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🏎️ UPRUSH</h1>
+<div id="info">Ready to race!</div>
+
+<canvas id="game" width="420" height="650"></canvas>
+
+<div class="controls">
+  <button id="start">▶ START RACE</button>
+  <button id="left">⬅ LEFT</button>
+  <button id="up">⬆ ACCELERATE</button>
+  <button id="down">⬇ BRAKE</button>
+  <button id="right">RIGHT ➡</button>
+  <button id="nitro">⚡ NITRO</button>
+  <button id="restart">🔄 RESTART</button>
+</div>
+
+<p class="small">
+Arrow keys or WASD to drive. Hold SPACE for nitro.
+Hold LEFT or RIGHT for smooth steering.
+</p>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const info = document.getElementById("info");
+
+const W = 420;
+const H = 650;
+
+let carX = 185;
+let targetX = 185;
+let carY = 525;
+
+let speed = 5;
+let roadOffset = 0;
+let score = 0;
+
+let traffic = [];
+let running = false;
+let started = false;
+let crashed = false;
+let nitro = false;
+
+let frame = 0;
+let spawnTimer = 0;
+let keys = {};
+
+const lanes = [90, 185, 280];
+const colors = ["#ff3030", "#ffd52a", "#c45bff", "#f4f4f4"];
+
+const STEERING = 0.12;
+const ACCELERATION = 0.12;
+const BRAKING = 0.18;
+
+function resetGame() {
+  carX = 185;
+  targetX = 185;
+  carY = 525;
+
+  speed = 5;
+  roadOffset = 0;
+  score = 0;
+
+  traffic = [];
+  running = false;
+  started = false;
+  crashed = false;
+  nitro = false;
+
+  frame = 0;
+  spawnTimer = 0;
+  keys = {};
+
+  info.textContent = "Ready to race!";
+  draw();
+}
+
+function startGame() {
+  if (crashed || started) {
+    resetGame();
+  }
+
+  started = true;
+  running = true;
+  crashed = false;
+
+  info.textContent = "GO! 🏁";
+  draw();
+}
+
+function drawCar(x, y, color, player = false) {
+  // Wheels
+  ctx.fillStyle = "#080808";
+
+  ctx.fillRect(x - 5, y + 13, 9, 22);
+  ctx.fillRect(x + 46, y + 13, 9, 22);
+  ctx.fillRect(x - 5, y + 53, 9, 22);
+  ctx.fillRect(x + 46, y + 53, 9, 22);
+
+  // Main car body
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.roundRect(x, y, 50, 82, 10);
+  ctx.fill();
+
+  // Windshield
+  ctx.fillStyle = "#8de9ff";
+  ctx.beginPath();
+  ctx.roundRect(x + 8, y + 13, 34, 21, 5);
+  ctx.fill();
+
+  // Rear window
+  ctx.fillStyle = "#172333";
+  ctx.fillRect(x + 9, y + 43, 32, 15);
+
+  // Headlights
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(x + 5, y + 3, 11, 5);
+  ctx.fillRect(x + 34, y + 3, 11, 5);
+
+  // Tail lights
+  ctx.fillStyle = "#ff2222";
+  ctx.fillRect(x + 5, y + 72, 11, 5);
+  ctx.fillRect(x + 34, y + 72, 11, 5);
+
+  // Nitro flames
+  if (player && nitro && running) {
+    ctx.fillStyle = "#ff4c00";
+
+    ctx.beginPath();
+    ctx.moveTo(x + 10, y + 81);
+    ctx.lineTo(x + 18, y + 81);
+    ctx.lineTo(x + 14, y + 110 + Math.random() * 10);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(x + 32, y + 81);
+    ctx.lineTo(x + 40, y + 81);
+    ctx.lineTo(x + 36, y + 110 + Math.random() * 10);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = "#ffe66d";
+    ctx.fillRect(x + 17, y + 84, 5, 13);
+    ctx.fillRect(x + 31, y + 84, 5, 13);
+  }
+}
+
+function drawRoad() {
+  // Grass
+  ctx.fillStyle = nitro && running ? "#244c25" : "#167c39";
+  ctx.fillRect(0, 0, W, H);
+
+  // Road
+  ctx.fillStyle = "#33363c";
+  ctx.fillRect(55, 0, 310, H);
+
+  // Road edges
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(55, 0, 7, H);
+  ctx.fillRect(358, 0, 7, H);
+
+  // Red-and-white roadside markings
+  for (let y = -60; y < H + 60; y += 60) {
+    const yy = ((y + roadOffset * 1.4) % (H + 60) + H + 60) % (H + 60) - 30;
+
+    ctx.fillStyle = "#ff3030";
+    ctx.fillRect(62, yy, 6, 28);
+    ctx.fillRect(352, yy, 6, 28);
+  }
+
+  // Moving lane lines
+  ctx.fillStyle = "#ffffff";
+
+  for (let y = -100; y < H + 100; y += 100) {
+    const yy = ((y + roadOffset) % (H + 100) + H + 100) % (H + 100) - 50;
+
+    ctx.fillRect(155, yy, 7, 48);
+    ctx.fillRect(258, yy, 7, 48);
+  }
+
+  // Nitro speed streaks
+  if (nitro && running) {
+    ctx.strokeStyle = "#ffb52e";
+    ctx.lineWidth = 3;
+
+    for (let i = 0; i < 18; i++) {
+      const x = 65 + Math.random() * 290;
+      const y = Math.random() * H;
+
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x, y + 25 + Math.random() * 20);
+      ctx.stroke();
+    }
+  }
+}
+
+function drawOverlay(title, subtitle, color = "#00ffcc") {
+  ctx.fillStyle = "rgba(0,0,0,0.84)";
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.textAlign = "center";
+
+  ctx.fillStyle = color;
+  ctx.font = "bold 38px Arial";
+  ctx.fillText(title, W / 2, 270);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "18px Arial";
+  ctx.fillText(subtitle, W / 2, 315);
+
+  ctx.font = "15px Arial";
+  ctx.fillText("UPRUSH • NITRO RACING", W / 2, 355);
+
+  ctx.textAlign = "left";
+}
+
+function draw() {
+  drawRoad();
+
+  for (const enemy of traffic) {
+    drawCar(enemy.x, enemy.y, enemy.color);
+  }
+
+  drawCar(carX, carY, "#00aaff", true);
+
+  if (!started) {
+    drawOverlay("UPRUSH", "Click START RACE to begin!");
+  } else if (crashed) {
+    drawOverlay("CRASH!", "Score: " + score + " • Click RESTART", "#ff3333");
+  } else if (nitro && running) {
+    ctx.fillStyle = "#ffe66d";
+    ctx.font = "bold 24px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("NITRO BOOST!", W / 2, 45);
+    ctx.textAlign = "left";
+  }
+}
+
+function moveLeft() {
+  if (running) {
+    targetX = Math.max(68, targetX - 65);
+  }
+}
+
+function moveRight() {
+  if (running) {
+    targetX = Math.min(302, targetX + 65);
+  }
+}
+
+function accelerate() {
+  if (running) speed = Math.min(12, speed + 1.2);
+}
+
+function brake() {
+  if (running) speed = Math.max(2, speed - 1.2);
+}
+
+function setNitro(value) {
+  nitro = value && running;
+}
+
+// Buttons
+document.getElementById("start").onclick = startGame;
+
+document.getElementById("restart").onclick = function() {
+  resetGame();
+  startGame();
+};
+
+document.getElementById("left").onclick = moveLeft;
+document.getElementById("right").onclick = moveRight;
+document.getElementById("up").onclick = accelerate;
+document.getElementById("down").onclick = brake;
+
+const nitroButton = document.getElementById("nitro");
+
+nitroButton.addEventListener("pointerdown", function(e) {
+  e.preventDefault();
+  setNitro(true);
+});
+
+function stopNitro() {
+  setNitro(false);
+}
+
+nitroButton.addEventListener("pointerup", stopNitro);
+nitroButton.addEventListener("pointerleave", stopNitro);
+nitroButton.addEventListener("pointercancel", stopNitro);
+
+// Hold-to-steer buttons for smoother mobile driving
+function holdSteering(buttonId, direction) {
+  const button = document.getElementById(buttonId);
+
+  button.addEventListener("pointerdown", function(e) {
+    e.preventDefault();
+
+    if (!running) return;
+
+    keys[direction] = true;
+
+    try {
+      button.setPointerCapture(e.pointerId);
+    } catch (_) {}
+  });
+
+  function release() {
+    keys[direction] = false;
+  }
+
+  button.addEventListener("pointerup", release);
+  button.addEventListener("pointercancel", release);
+  button.addEventListener("lostpointercapture", release);
+}
+
+holdSteering("left", "left");
+holdSteering("right", "right");
+
+// Keyboard controls
+document.addEventListener("keydown", function(e) {
+  if ([
+    "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Space"
+  ].includes(e.code)) {
+    e.preventDefault();
+  }
+
+  keys[e.code] = true;
+
+  if (e.code === "Space") setNitro(true);
+});
+
+document.addEventListener("keyup", function(e) {
+  keys[e.code] = false;
+
+  if (e.code === "Space") setNitro(false);
+});
+
+function loop() {
+  if (running) {
+    // Smooth steering: the car glides toward its target
+    let steer = 0;
+
+    if (keys.left || keys.ArrowLeft || keys.KeyA) steer -= 1;
+    if (keys.right || keys.ArrowRight || keys.KeyD) steer += 1;
+
+    if (steer !== 0) {
+      targetX += steer * (nitro ? 4.2 : 3.3);
+    }
+
+    targetX = Math.max(68, Math.min(302, targetX));
+
+    // Smoothly move the actual car toward the target
+    carX += (targetX - carX) * STEERING;
+
+    // Hold keyboard controls for smooth acceleration and braking
+    if (keys.ArrowUp || keys.KeyW) {
+      speed = Math.min(12, speed + ACCELERATION);
+    }
+
+    if (keys.ArrowDown || keys.KeyS) {
+      speed = Math.max(2, speed - BRAKING);
+    }
+
+    const currentSpeed = nitro ? 16 : speed;
+
+    roadOffset = (roadOffset + currentSpeed) % (H + 100);
+
+    frame++;
+    spawnTimer++;
+
+    if (spawnTimer >= Math.max(24, 65 - Math.floor(speed * 2))) {
+      spawnTimer = 0;
+
+      const lane = lanes[Math.floor(Math.random() * lanes.length)];
+
+      traffic.push({
+        x: lane,
+        y: -100,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      });
+    }
+
+    // Traffic moves toward the player
+    for (const enemy of traffic) {
+      enemy.y += currentSpeed * 0.8;
+    }
+
+    traffic = traffic.filter(enemy => enemy.y < H + 100);
+
+    // Collision detection
+    for (const enemy of traffic) {
+      const hit =
+        carX + 7 < enemy.x + 43 &&
+        carX + 43 > enemy.x + 7 &&
+        carY + 8 < enemy.y + 74 &&
+        carY + 74 > enemy.y + 8;
+
+      if (hit) {
+        running = false;
+        crashed = true;
+        nitro = false;
+        break;
+      }
+    }
+
+    if (frame % 6 === 0) score++;
+
+    info.textContent =
+      "Score: " + score +
+      " | Speed: " +
+      (nitro ? "NITRO 🚀" :
+       speed >= 9 ? "FAST 🔥" :
+       speed <= 3 ? "SLOW" : "NORMAL");
+  }
+
+  draw();
+  requestAnimationFrame(loop);
+}
+
+// Show the start screen; do not begin the race automatically
+resetGame();
+loop();
+</script>
+
+</body>
+</html>
