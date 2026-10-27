@@ -1,42 +1,274 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CPS Tester</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Turbo Track Racing</title>
 <style>
-:root{color-scheme:dark;--bg:#0b1020;--panel:#151d32;--line:#2a3857;--text:#f4f7ff;--muted:#9eacc8;--accent:#6c8cff}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:20px;font-family:system-ui,Segoe UI,Arial,sans-serif;background:radial-gradient(ellipse at top,#19284b,var(--bg) 60%);color:var(--text)}
-main{width:min(760px,100%)}header{text-align:center;margin-bottom:22px}.logo{display:inline-grid;place-items:center;width:58px;height:58px;border-radius:18px;background:#25365e;border:1px solid #425b94;font-size:28px;margin-bottom:8px}
-h1{margin:0;font-size:clamp(2rem,6vw,3rem);letter-spacing:-1px}header p,.muted{color:var(--muted)}header p{margin:8px 0 0}
-.panel{background:rgba(21,29,50,.95);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 18px 60px #0005}.top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px}
-label{color:var(--muted)}select,button{font:inherit}select{background:#0e1528;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:9px 12px}
-.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}.stat{background:#0e1528;border:1px solid var(--line);border-radius:15px;padding:16px 10px;text-align:center}
-.value{font-size:clamp(1.7rem,6vw,2.5rem);font-weight:800;letter-spacing:-1px;font-variant-numeric:tabular-nums}.label{color:var(--muted);font-size:.82rem;margin-top:3px}
-#clickArea{width:100%;min-height:245px;border:2px dashed #52689c;border-radius:18px;background:linear-gradient(135deg,#1a2a4d,#111b31);color:var(--text);display:grid;place-items:center;text-align:center;cursor:pointer;user-select:none;touch-action:manipulation}
-#clickArea:hover{border-color:var(--accent);background:linear-gradient(135deg,#223864,#152440)}.big{font-size:1.5rem;font-weight:750}.sub{color:var(--muted);margin-top:8px}
-.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}.btn{border:1px solid var(--line);border-radius:12px;padding:10px 16px;background:#202b46;color:var(--text);cursor:pointer;font-weight:650}.primary{background:var(--accent);border-color:var(--accent)}.hint{color:var(--muted);font-size:.9rem;line-height:1.55;text-align:center;margin:17px 0 0}
-@media(max-width:520px){.panel{padding:14px}.stats{gap:7px}.stat{padding:12px 5px}.label{font-size:.72rem}#clickArea{min-height:220px}}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #14212b;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+h1 { margin: 0; padding: 12px; background: #263b4b; }
+#game {
+  display: block;
+  width: min(100%, 800px);
+  height: auto;
+  margin: auto;
+  background: #559c49;
+}
+#info { padding: 10px; font-size: 18px; }
+button {
+  padding: 12px 20px;
+  margin: 5px;
+  border: 0;
+  border-radius: 8px;
+  background: #ffd447;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+}
+#message { font-size: 20px; font-weight: bold; }
 </style>
 </head>
-<body><main>
-<header><div class="logo">⚡</div><h1>CPS Tester</h1><p>Test your clicking speed in clicks per second.</p></header>
-<section class="panel">
-<div class="top"><label for="duration">Test duration</label><select id="duration"><option value="5">5 seconds</option><option value="10" selected>10 seconds</option><option value="15">15 seconds</option><option value="30">30 seconds</option><option value="60">60 seconds</option></select></div>
-<div class="stats" aria-live="polite"><div class="stat"><div class="value" id="cps">0.00</div><div class="label">CPS</div></div><div class="stat"><div class="value" id="clicks">0</div><div class="label">CLICKS</div></div><div class="stat"><div class="value" id="time">10.0</div><div class="label">SECONDS LEFT</div></div></div>
-<button id="clickArea" type="button"><span><span class="big" id="prompt">Click here to start!</span><br><span class="sub" id="subprompt">Every click counts. Ready?</span></span></button>
-<div class="actions"><button class="btn primary" id="startBtn">Start test</button><button class="btn" id="resetBtn">Reset</button></div>
-<p class="hint" id="result">Choose a duration, then click the big area to begin. Your final CPS is total clicks divided by test time.</p>
-</section><p class="hint">Use a mouse or tap the screen. No data is uploaded or saved.</p>
-</main>
+<body>
+
+<h1>🏁 TURBO TRACK</h1>
+<div id="info">
+  Speed: <span id="speed">0</span> km/h |
+  Distance: <span id="distance">0</span> m |
+  Best: <span id="best">0</span> m
+</div>
+
+<canvas id="game" width="800" height="600"></canvas>
+
+<div>
+  <button id="left">⬅ LEFT</button>
+  <button id="start">START / RESTART</button>
+  <button id="right">RIGHT ➡</button>
+</div>
+<p id="message">Press START to race!</p>
+<p>Keyboard: A / D or ← / → to steer.</p>
+
 <script>
-(()=>{const area=document.querySelector('#clickArea'),sel=document.querySelector('#duration'),cps=document.querySelector('#cps'),clicks=document.querySelector('#clicks'),time=document.querySelector('#time'),prompt=document.querySelector('#prompt'),sub=document.querySelector('#subprompt'),result=document.querySelector('#result'),startBtn=document.querySelector('#startBtn'),resetBtn=document.querySelector('#resetBtn');let running=false,count=0,startAt=0,endAt=0,raf=0;
-const duration=()=>Number(sel.value);
-function reset(){running=false;count=0;cancelAnimationFrame(raf);clicks.textContent='0';cps.textContent='0.00';time.textContent=duration().toFixed(1);prompt.textContent='Click here to start!';sub.textContent='Every click counts. Ready?';startBtn.textContent='Start test';result.textContent='Choose a duration, then click the big area to begin.'}
-function finish(){running=false;cps.textContent=(count/duration()).toFixed(2);time.textContent='0.0';prompt.textContent='Test complete!';sub.textContent='Press Try again to play another round.';startBtn.textContent='Try again';result.textContent=`Result: ${count} clicks in ${duration()} seconds = ${(count/duration()).toFixed(2)} CPS.`}
-function tick(){if(!running)return;const now=performance.now(),remaining=endAt-now;time.textContent=Math.max(0,remaining/1000).toFixed(1);cps.textContent=(count/Math.max(.001,(now-startAt)/1000)).toFixed(2);if(remaining<=0){finish();return}raf=requestAnimationFrame(tick)}
-function begin(){reset();running=true;startAt=performance.now();endAt=startAt+duration()*1000;prompt.textContent='CLICK!';sub.textContent='Keep clicking until the timer ends.';startBtn.textContent='Test running…';tick()}
-area.addEventListener('click',()=>{if(!running){begin();count=1;clicks.textContent='1';return}count++;clicks.textContent=String(count)});
-startBtn.addEventListener('click',begin);resetBtn.addEventListener('click',reset);sel.addEventListener('change',reset);reset();
-})();
-</script></body></html>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const road = { x: 190, width: 420 };
+const car = { x: 376, y: 470, w: 48, h: 82 };
+
+let keys = {};
+let traffic = [];
+let running = false;
+let speed = 0;
+let distance = 0;
+let roadLine = 0;
+let spawn = 0;
+let lastTime = 0;
+let best = 0;
+
+try {
+  best = Number(localStorage.getItem("turboBest") || 0);
+} catch (e) {}
+
+document.getElementById("best").textContent = best;
+
+function startGame() {
+  traffic = [];
+  speed = 0;
+  distance = 0;
+  roadLine = 0;
+  spawn = 0;
+  car.x = 376;
+  running = true;
+  document.getElementById("message").textContent =
+    "GO! Dodge the traffic! 🏎️";
+}
+
+document.getElementById("start").onclick = startGame;
+
+function drawCar(x, y, w, h, color, player = false) {
+  ctx.fillStyle = "#20252b";
+  ctx.fillRect(x - 3, y + 14, 6, 18);
+  ctx.fillRect(x + w - 3, y + 14, 6, 18);
+  ctx.fillRect(x - 3, y + h - 32, 6, 18);
+  ctx.fillRect(x + w - 3, y + h - 32, 6, 18);
+
+  ctx.fillStyle = color;
+  ctx.fillRect(x, y, w, h);
+
+  ctx.fillStyle = "#a8e9ff";
+  ctx.fillRect(x + 7, y + 17, w - 14, 18);
+
+  ctx.fillStyle = "#18303d";
+  ctx.fillRect(x + 8, y + 42, w - 16, 17);
+
+  ctx.fillStyle = "#fff3a1";
+  ctx.fillRect(x + 4, y + 5, 9, 7);
+  ctx.fillRect(x + w - 13, y + 5, 9, 7);
+
+  if (player) {
+    ctx.fillStyle = "white";
+    ctx.fillRect(x + 21, y + 44, 6, 14);
+  }
+}
+
+function drawWorld() {
+  ctx.fillStyle = "#559c49";
+  ctx.fillRect(0, 0, 800, 600);
+
+  // Grass decorations
+  ctx.fillStyle = "#70b75b";
+  for (let y = -40; y < 640; y += 65) {
+    const yy = (y + roadLine * 1.5) % 680;
+    ctx.fillRect(65, yy, 22, 22);
+    ctx.fillRect(710, yy + 25, 22, 22);
+  }
+
+  // Road
+  ctx.fillStyle = "#555b61";
+  ctx.fillRect(road.x, 0, road.width, 600);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(road.x, 0, 8, 600);
+  ctx.fillRect(road.x + road.width - 8, 0, 8, 600);
+
+  // Lane markings
+  ctx.fillStyle = "#fff3c0";
+  for (let y = -70; y < 650; y += 100) {
+    let yy = (y + roadLine) % 700;
+    ctx.fillRect(road.x + 136, yy, 7, 50);
+    ctx.fillRect(road.x + 277, yy, 7, 50);
+  }
+}
+
+function addTraffic() {
+  const lane = Math.floor(Math.random() * 3);
+  const laneWidth = road.width / 3;
+
+  traffic.push({
+    x: road.x + lane * laneWidth + laneWidth / 2 - 22,
+    y: -100,
+    w: 44,
+    h: 76,
+    color: ["#ff5252", "#ffc247", "#7d91ff", "#f3f3f3"][
+      Math.floor(Math.random() * 4)
+    ],
+    extraSpeed: Math.random() * 1.2 + 0.5
+  });
+}
+
+function crashed(a, b) {
+  return a.x + 7 < b.x + b.w - 6 &&
+         a.x + a.w - 7 > b.x + 6 &&
+         a.y + 10 < b.y + b.h - 8 &&
+         a.y + a.h - 8 > b.y + 8;
+}
+
+function update(dt) {
+  if (!running) return;
+
+  speed = Math.min(180, speed + 0.3 * dt);
+  distance += speed * dt * 0.075;
+  roadLine = (roadLine + speed * 0.65 * dt) % 100;
+  spawn += dt;
+
+  if (spawn > Math.max(25, 72 - speed * 0.22)) {
+    spawn = 0;
+    addTraffic();
+  }
+
+  if (keys.left) car.x -= 5 * dt;
+  if (keys.right) car.x += 5 * dt;
+
+  car.x = Math.max(
+    road.x + 16,
+    Math.min(road.x + road.width - car.w - 16, car.x)
+  );
+
+  for (const t of traffic) {
+    t.y += (2.5 + t.extraSpeed + speed * 0.018) * dt;
+  }
+
+  traffic = traffic.filter(t => t.y < 650);
+
+  for (const t of traffic) {
+    if (crashed(car, t)) {
+      running = false;
+      document.getElementById("message").textContent =
+        "💥 CRASH! Press START / RESTART to try again!";
+
+      if (Math.floor(distance) > best) {
+        best = Math.floor(distance);
+        try {
+          localStorage.setItem("turboBest", best);
+        } catch (e) {}
+      }
+    }
+  }
+}
+
+function draw() {
+  drawWorld();
+
+  for (const t of traffic) {
+    drawCar(t.x, t.y, t.w, t.h, t.color);
+  }
+
+  drawCar(car.x, car.y, car.w, car.h, "#20c7a5", true);
+
+  document.getElementById("speed").textContent = Math.floor(speed);
+  document.getElementById("distance").textContent =
+    Math.floor(distance);
+  document.getElementById("best").textContent = best;
+}
+
+function loop(now) {
+  const dt = lastTime ? Math.min((now - lastTime) / 16.67, 2) : 1;
+  lastTime = now;
+  update(dt);
+  draw();
+  requestAnimationFrame(loop);
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") {
+    keys.left = true;
+    e.preventDefault();
+  }
+  if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
+    keys.right = true;
+    e.preventDefault();
+  }
+});
+
+document.addEventListener("keyup", e => {
+  if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a")
+    keys.left = false;
+  if (e.key === "ArrowRight" || e.key.toLowerCase() === "d")
+    keys.right = false;
+});
+
+function holdButton(id, key) {
+  const button = document.getElementById(id);
+  button.addEventListener("pointerdown", e => {
+    e.preventDefault();
+    keys[key] = true;
+  });
+  for (const event of ["pointerup", "pointercancel", "pointerleave"]) {
+    button.addEventListener(event, () => keys[key] = false);
+  }
+}
+
+holdButton("left", "left");
+holdButton("right", "right");
+
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

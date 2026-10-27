@@ -4,146 +4,271 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Windows 10 Web Desktop</title>
+<title>Turbo Track Racing</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:"Segoe UI",Arial,sans-serif;color:white;overflow:hidden}
-#desktop{
- height:100vh;
- background:linear-gradient(135deg,#0879c9,#004e92 55%,#001d50);
- position:relative;
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #14212b;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
 }
-#icons{padding:18px;display:grid;gap:25px;width:95px}
-.app{width:75px;text-align:center;cursor:pointer;padding:6px;border:1px solid transparent}
-.app:hover{background:#ffffff25;border-color:#ffffff55}
-.app .emoji{font-size:34px;display:block;margin-bottom:5px}
-#taskbar{
- position:absolute;bottom:0;left:0;right:0;height:48px;
- background:#171717eF;display:flex;align-items:center;gap:8px;
- padding:0 10px
+h1 { margin: 0; padding: 12px; background: #263b4b; }
+#game {
+  display: block;
+  width: min(100%, 800px);
+  height: auto;
+  margin: auto;
+  background: #559c49;
 }
-button{cursor:pointer;color:white;border:0;font:inherit}
-#startBtn{height:42px;width:45px;background:transparent;font-size:24px}
-#startBtn:hover{background:#ffffff24}
-#search{background:#333;border:1px solid #555;padding:8px;width:190px;color:white}
-#clock{margin-left:auto;text-align:right;font-size:12px;padding:0 8px}
-#startMenu{
- display:none;position:absolute;bottom:48px;left:0;width:min(350px,95vw);
- height:430px;background:#202020f5;padding:18px;
- box-shadow:0 0 20px #0007
+#info { padding: 10px; font-size: 18px; }
+button {
+  padding: 12px 20px;
+  margin: 5px;
+  border: 0;
+  border-radius: 8px;
+  background: #ffd447;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
 }
-#startMenu h2{font-weight:400;font-size:20px}
-.startApp{display:block;width:100%;padding:12px;text-align:left;background:transparent}
-.startApp:hover{background:#ffffff25}
-#window{
- display:none;position:absolute;left:50%;top:45%;
- transform:translate(-50%,-50%);width:min(520px,92vw);
- min-height:230px;background:#f1f1f1;color:#222;
- box-shadow:0 10px 40px #0008
-}
-#titlebar{background:#0078d7;color:white;padding:10px;display:flex}
-#titlebar span{flex:1}
-#titlebar button{background:transparent;padding:0 8px}
-#content{padding:20px}
-#content button{background:#0078d7;padding:9px 14px;margin-top:8px}
+#message { font-size: 20px; font-weight: bold; }
 </style>
 </head>
 <body>
-<div id="desktop">
- <div id="icons">
-  <div class="app" onclick="openApp('About This PC')">
-   <span class="emoji">🖥️</span>This PC
-  </div>
-  <div class="app" onclick="openApp('Recycle Bin')">
-   <span class="emoji">🗑️</span>Recycle Bin
-  </div>
-  <div class="app" onclick="openApp('Notepad')">
-   <span class="emoji">📝</span>Notepad
-  </div>
- </div>
 
- <div id="startMenu">
-  <h2>Start</h2>
-  <button class="startApp" onclick="openApp('About This PC')">🖥️ This PC</button>
-  <button class="startApp" onclick="openApp('Notepad')">📝 Notepad</button>
-  <button class="startApp" onclick="openApp('Settings')">⚙️ Settings</button>
-  <button class="startApp" onclick="openApp('Calculator')">🧮 Calculator</button>
-  <button class="startApp" onclick="openApp('Power')">⏻ Power options</button>
- </div>
-
- <div id="window">
-  <div id="titlebar">
-   <span id="windowTitle">App</span>
-   <button onclick="closeApp()">✕</button>
-  </div>
-  <div id="content"></div>
- </div>
-
- <div id="taskbar">
-  <button id="startBtn" onclick="toggleStart()" title="Start">⊞</button>
-  <input id="search" placeholder="Type here to search">
-  <span>🌐</span>
-  <span>📁</span>
-  <div id="clock"></div>
- </div>
+<h1>🏁 TURBO TRACK</h1>
+<div id="info">
+  Speed: <span id="speed">0</span> km/h |
+  Distance: <span id="distance">0</span> m |
+  Best: <span id="best">0</span> m
 </div>
 
+<canvas id="game" width="800" height="600"></canvas>
+
+<div>
+  <button id="left">⬅ LEFT</button>
+  <button id="start">START / RESTART</button>
+  <button id="right">RIGHT ➡</button>
+</div>
+<p id="message">Press START to race!</p>
+<p>Keyboard: A / D or ← / → to steer.</p>
+
 <script>
-const startMenu=document.getElementById('startMenu');
-const win=document.getElementById('window');
-const content=document.getElementById('content');
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-function toggleStart(){
- startMenu.style.display=
-  startMenu.style.display==='block'?'none':'block';
-}
-function closeApp(){win.style.display='none'}
-function openApp(name){
- startMenu.style.display='none';
- document.getElementById('windowTitle').textContent=name;
- win.style.display='block';
+const road = { x: 190, width: 420 };
+const car = { x: 376, y: 470, w: 48, h: 82 };
 
- if(name==='Notepad'){
-  content.innerHTML=
-   '<h2>Notepad</h2><textarea style="width:100%;height:120px" placeholder="Type something..."></textarea>';
- }else if(name==='Settings'){
-  content.innerHTML=
-   '<h2>Settings</h2><p>System · Personalization · Apps</p><p>This is a desktop simulation.</p>';
- }else if(name==='Calculator'){
-  content.innerHTML=
-   '<h2>Calculator</h2><input id="calc" type="text" placeholder="Example: 2+2"><br><button onclick="calculate()">Calculate</button><p id="answer"></p>';
- }else if(name==='Power'){
-  content.innerHTML=
-   '<h2>Power options</h2><p>This simulation cannot shut down your computer.</p><button onclick="closeApp()">Cancel</button>';
- }else if(name==='Recycle Bin'){
-  content.innerHTML='<h2>Recycle Bin</h2><p>Recycle Bin is empty.</p>';
- }else{
-  content.innerHTML='<h2>'+name+'</h2><p>Welcome to your Windows-style desktop!</p>';
- }
+let keys = {};
+let traffic = [];
+let running = false;
+let speed = 0;
+let distance = 0;
+let roadLine = 0;
+let spawn = 0;
+let lastTime = 0;
+let best = 0;
+
+try {
+  best = Number(localStorage.getItem("turboBest") || 0);
+} catch (e) {}
+
+document.getElementById("best").textContent = best;
+
+function startGame() {
+  traffic = [];
+  speed = 0;
+  distance = 0;
+  roadLine = 0;
+  spawn = 0;
+  car.x = 376;
+  running = true;
+  document.getElementById("message").textContent =
+    "GO! Dodge the traffic! 🏎️";
 }
-function calculate(){
- try{
-  const s=document.getElementById('calc').value;
-  if(!/^[0-9+*/().% -]+$/.test(s))throw Error();
-  document.getElementById('answer').textContent=Function('"use strict";return ('+s+')')();
- }catch(e){document.getElementById('answer').textContent='Invalid calculation'}
+
+document.getElementById("start").onclick = startGame;
+
+function drawCar(x, y, w, h, color, player = false) {
+  ctx.fillStyle = "#20252b";
+  ctx.fillRect(x - 3, y + 14, 6, 18);
+  ctx.fillRect(x + w - 3, y + 14, 6, 18);
+  ctx.fillRect(x - 3, y + h - 32, 6, 18);
+  ctx.fillRect(x + w - 3, y + h - 32, 6, 18);
+
+  ctx.fillStyle = color;
+  ctx.fillRect(x, y, w, h);
+
+  ctx.fillStyle = "#a8e9ff";
+  ctx.fillRect(x + 7, y + 17, w - 14, 18);
+
+  ctx.fillStyle = "#18303d";
+  ctx.fillRect(x + 8, y + 42, w - 16, 17);
+
+  ctx.fillStyle = "#fff3a1";
+  ctx.fillRect(x + 4, y + 5, 9, 7);
+  ctx.fillRect(x + w - 13, y + 5, 9, 7);
+
+  if (player) {
+    ctx.fillStyle = "white";
+    ctx.fillRect(x + 21, y + 44, 6, 14);
+  }
 }
-function updateClock(){
- const d=new Date();
- document.getElementById('clock').innerHTML=
-  d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+'<br>'+
-  d.toLocaleDateString();
+
+function drawWorld() {
+  ctx.fillStyle = "#559c49";
+  ctx.fillRect(0, 0, 800, 600);
+
+  // Grass decorations
+  ctx.fillStyle = "#70b75b";
+  for (let y = -40; y < 640; y += 65) {
+    const yy = (y + roadLine * 1.5) % 680;
+    ctx.fillRect(65, yy, 22, 22);
+    ctx.fillRect(710, yy + 25, 22, 22);
+  }
+
+  // Road
+  ctx.fillStyle = "#555b61";
+  ctx.fillRect(road.x, 0, road.width, 600);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(road.x, 0, 8, 600);
+  ctx.fillRect(road.x + road.width - 8, 0, 8, 600);
+
+  // Lane markings
+  ctx.fillStyle = "#fff3c0";
+  for (let y = -70; y < 650; y += 100) {
+    let yy = (y + roadLine) % 700;
+    ctx.fillRect(road.x + 136, yy, 7, 50);
+    ctx.fillRect(road.x + 277, yy, 7, 50);
+  }
 }
-updateClock();setInterval(updateClock,1000);
-document.getElementById('search').addEventListener('keydown',e=>{
- if(e.key==='Enter'){
-  const q=e.target.value.trim();
-  if(q)openApp(q);
- }
+
+function addTraffic() {
+  const lane = Math.floor(Math.random() * 3);
+  const laneWidth = road.width / 3;
+
+  traffic.push({
+    x: road.x + lane * laneWidth + laneWidth / 2 - 22,
+    y: -100,
+    w: 44,
+    h: 76,
+    color: ["#ff5252", "#ffc247", "#7d91ff", "#f3f3f3"][
+      Math.floor(Math.random() * 4)
+    ],
+    extraSpeed: Math.random() * 1.2 + 0.5
+  });
+}
+
+function crashed(a, b) {
+  return a.x + 7 < b.x + b.w - 6 &&
+         a.x + a.w - 7 > b.x + 6 &&
+         a.y + 10 < b.y + b.h - 8 &&
+         a.y + a.h - 8 > b.y + 8;
+}
+
+function update(dt) {
+  if (!running) return;
+
+  speed = Math.min(180, speed + 0.3 * dt);
+  distance += speed * dt * 0.075;
+  roadLine = (roadLine + speed * 0.65 * dt) % 100;
+  spawn += dt;
+
+  if (spawn > Math.max(25, 72 - speed * 0.22)) {
+    spawn = 0;
+    addTraffic();
+  }
+
+  if (keys.left) car.x -= 5 * dt;
+  if (keys.right) car.x += 5 * dt;
+
+  car.x = Math.max(
+    road.x + 16,
+    Math.min(road.x + road.width - car.w - 16, car.x)
+  );
+
+  for (const t of traffic) {
+    t.y += (2.5 + t.extraSpeed + speed * 0.018) * dt;
+  }
+
+  traffic = traffic.filter(t => t.y < 650);
+
+  for (const t of traffic) {
+    if (crashed(car, t)) {
+      running = false;
+      document.getElementById("message").textContent =
+        "💥 CRASH! Press START / RESTART to try again!";
+
+      if (Math.floor(distance) > best) {
+        best = Math.floor(distance);
+        try {
+          localStorage.setItem("turboBest", best);
+        } catch (e) {}
+      }
+    }
+  }
+}
+
+function draw() {
+  drawWorld();
+
+  for (const t of traffic) {
+    drawCar(t.x, t.y, t.w, t.h, t.color);
+  }
+
+  drawCar(car.x, car.y, car.w, car.h, "#20c7a5", true);
+
+  document.getElementById("speed").textContent = Math.floor(speed);
+  document.getElementById("distance").textContent =
+    Math.floor(distance);
+  document.getElementById("best").textContent = best;
+}
+
+function loop(now) {
+  const dt = lastTime ? Math.min((now - lastTime) / 16.67, 2) : 1;
+  lastTime = now;
+  update(dt);
+  draw();
+  requestAnimationFrame(loop);
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") {
+    keys.left = true;
+    e.preventDefault();
+  }
+  if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
+    keys.right = true;
+    e.preventDefault();
+  }
 });
-document.addEventListener('keydown',e=>{
- if(e.key==='Escape'){closeApp();startMenu.style.display='none'}
+
+document.addEventListener("keyup", e => {
+  if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a")
+    keys.left = false;
+  if (e.key === "ArrowRight" || e.key.toLowerCase() === "d")
+    keys.right = false;
 });
+
+function holdButton(id, key) {
+  const button = document.getElementById(id);
+  button.addEventListener("pointerdown", e => {
+    e.preventDefault();
+    keys[key] = true;
+  });
+  for (const event of ["pointerup", "pointercancel", "pointerleave"]) {
+    button.addEventListener(event, () => keys[key] = false);
+  }
+}
+
+holdButton("left", "left");
+holdButton("right", "right");
+
+requestAnimationFrame(loop);
 </script>
 </body>
 </html>
