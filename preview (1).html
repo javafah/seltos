@@ -3,791 +3,124 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>OPS Studio Arcade Deluxe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Our Chaotic Story</title>
 <style>
-:root {
-  --bg:#091225; --panel:#14213d; --panel2:#1b2e50;
-  --text:#f5f8ff; --muted:#a9bbd7; --blue:#53a7ff;
-  --purple:#a78bfa; --green:#54e5a0;
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #100d24;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
 }
-*{box-sizing:border-box}
-body{
-  margin:0;background:radial-gradient(ellipse at top,#203b68,var(--bg) 65%);
-  color:var(--text);font-family:Arial,sans-serif;min-height:100vh
+header { padding: 25px 12px; background: #241044; }
+h1 { color: #ff80c8; margin: 0 0 8px; }
+main { max-width: 750px; margin: auto; padding: 18px; }
+#scene {
+  min-height: 240px;
+  padding: 24px 12px;
+  border: 2px solid #8b5cf6;
+  border-radius: 18px;
+  background: #1d1638;
+  font-size: 22px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
 }
-header{
-  padding:20px 5%;display:flex;justify-content:space-between;
-  align-items:center;gap:15px;flex-wrap:wrap;border-bottom:1px solid #ffffff18
+#emoji { font-size: 38px; }
+button {
+  margin: 6px;
+  padding: 12px 17px;
+  border: 0;
+  border-radius: 10px;
+  background: #a855f7;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
 }
-.logo{font-size:25px;font-weight:900;letter-spacing:1px}
-.logo span{color:var(--blue)}
-.tag{color:var(--muted);font-size:12px;margin-top:5px}
-button,select{
-  color:white;background:#263d65;border:1px solid #ffffff24;
-  border-radius:10px;padding:10px 14px;font-weight:bold;cursor:pointer
+button:hover { background: #d946ef; }
+#log {
+  margin-top: 18px;
+  padding: 14px;
+  border-radius: 12px;
+  background: #171329;
+  text-align: left;
 }
-button:hover{filter:brightness(1.25);transform:translateY(-1px)}
-button:focus-visible,select:focus-visible{outline:2px solid var(--blue)}
-.primary{background:linear-gradient(120deg,#2587f5,#8157ed)}
-main{width:min(1200px,94%);margin:24px auto}
-h1{font-size:clamp(25px,4vw,40px);margin:10px 0}
-h2{margin:0 0 14px}
-.muted{color:var(--muted)}
-.layout{display:grid;grid-template-columns:300px 1fr;gap:20px}
-.panel{
-  background:linear-gradient(145deg,#172846,#101b31);
-  border:1px solid #ffffff18;border-radius:18px;padding:18px;
-  box-shadow:0 15px 35px #0002
-}
-.game-list{display:grid;gap:10px}
-.game-choice{
-  text-align:left;display:flex;gap:12px;align-items:center;
-  padding:14px;background:#ffffff08;border:1px solid #ffffff13
-}
-.game-choice.active{background:#2866a744;border-color:#64b4ff}
-.emoji{font-size:30px}
-.game-name{font-size:15px}
-.game-desc{font-size:12px;color:var(--muted);margin-top:4px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0}
-.stat{padding:12px;border-radius:12px;background:#ffffff09}
-.stat strong{display:block;font-size:23px;margin-top:5px}
-.stat small{color:var(--muted)}
-.canvas-wrap{position:relative}
-canvas{
-  display:block;width:100%;aspect-ratio:9/5;background:#87d9ff;
-  border-radius:14px;border:1px solid #ffffff28;touch-action:manipulation
-}
-.overlay{
-  position:absolute;inset:0;display:flex;flex-direction:column;
-  justify-content:center;align-items:center;text-align:center;
-  padding:20px;border-radius:14px;
-  background:linear-gradient(#08152b77,#08152be8)
-}
-.overlay h2{font-size:clamp(25px,4vw,43px);margin:0 0 10px}
-.overlay p{max-width:440px;line-height:1.5;color:#e0eaff}
-.overlay.hidden{display:none}
-.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
-.controls{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:13px}
-kbd{background:#25395b;border:1px solid #ffffff25;padding:4px 8px;border-radius:5px}
-.settings{margin-top:20px}
-.setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #ffffff12}
-.setting-row label{color:#d9e6ff}
-.setting-row select{max-width:160px}
-footer{text-align:center;color:var(--muted);font-size:12px;padding:25px}
-.mobile-controls{display:flex;gap:10px;margin-top:10px}
-.mobile-controls button{flex:1;min-height:48px;font-size:16px}
-@media(max-width:780px){
- .layout{grid-template-columns:1fr}
- .game-list{grid-template-columns:repeat(2,minmax(0,1fr))}
- .game-choice{padding:10px;gap:7px}
- .emoji{font-size:24px}
- .game-desc{display:none}
- header{padding:16px 4%}
-}
+footer { color: #bdb2d8; padding: 20px; }
 </style>
 </head>
 <body>
 <header>
-  <div>
-    <div class="logo">OPS <span>STUDIO</span> ARCADE</div>
-    <div class="tag">DELUXE EDITION · FIVE GAMES · ONE ARCADE</div>
-  </div>
-  <button id="soundButton" onclick="toggleSound()">🔊 Sound: ON</button>
+  <h1>😈 Our Chaotic Story 💥</h1>
+  <div>THE UNIVERSE IS YOURS TO CONTROL</div>
 </header>
 
 <main>
-  <h1>Welcome to your arcade!</h1>
-  <p class="muted">Pick a game, beat your record, and become the arcade champion.</p>
+  <section id="scene">
+    <div id="emoji">😈🍕🦠</div>
+    <p id="story">The Demon Army has arrived! Virus.exe is singing again!</p>
+  </section>
 
-  <div class="layout">
-    <aside class="panel">
-      <h2>🎮 Game Library</h2>
-      <div class="game-list" id="gameList"></div>
-
-      <div class="settings">
-        <h2>⚙️ Settings</h2>
-        <div class="setting-row">
-          <label for="difficulty">Difficulty</label>
-          <select id="difficulty">
-            <option value="easy">Easy</option>
-            <option value="normal" selected>Normal</option>
-            <option value="hard">Hard</option>
-          </select>
-        </div>
-        <div class="setting-row">
-          <label for="skin">Dino colour</label>
-          <select id="skin">
-            <option value="green">Jungle Green</option>
-            <option value="blue">Ocean Blue</option>
-            <option value="purple">Magic Purple</option>
-            <option value="orange">Sunset Orange</option>
-          </select>
-        </div>
-        <div class="setting-row">
-          <label for="autoJump">Auto-jump</label>
-          <input type="checkbox" id="autoJump">
-        </div>
-        <div class="setting-row">
-          <label for="soundSetting">Sound effects</label>
-          <input type="checkbox" id="soundSetting" checked>
-        </div>
-        <p class="muted" style="font-size:12px">Records and settings are saved in this browser.</p>
-        <button onclick="resetRecords()">Reset high scores</button>
-      </div>
-    </aside>
-
-    <section class="panel">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-        <div>
-          <h2 id="gameTitle">🦖 Dino Dash</h2>
-          <div class="muted" id="gameSubtitle">Run, jump, slide, and collect stars!</div>
-        </div>
-        <button class="primary" id="startButton" onclick="startGame()">▶ Start Game</button>
-      </div>
-
-      <div class="stats">
-        <div class="stat"><small>SCORE</small><strong id="score">0</strong></div>
-        <div class="stat"><small>HIGH SCORE</small><strong id="highScore">0</strong></div>
-        <div class="stat"><small>STATUS</small><strong id="status" style="font-size:16px">READY</strong></div>
-      </div>
-
-      <div class="canvas-wrap">
-        <canvas id="gameCanvas" width="900" height="500" aria-label="Arcade game area"></canvas>
-        <div class="overlay" id="overlay">
-          <div style="font-size:65px" id="overlayEmoji">🦖</div>
-          <h2 id="overlayTitle">DINO DASH!</h2>
-          <p id="overlayText">A colourful adventure awaits! Dodge obstacles, collect stars, and use your special moves.</p>
-          <button class="primary" onclick="startGame()">LET'S PLAY!</button>
-        </div>
-      </div>
-
-      <div class="controls">
-        <div class="muted" id="instructions">Press SPACE or ↑ to jump. Press ↓ to slide.</div>
-        <button onclick="pauseGame()">⏸ Pause</button>
-      </div>
-      <div class="mobile-controls">
-        <button onclick="actionJump()">⬆ Jump</button>
-        <button onclick="actionSlide()">⬇ Slide</button>
-      </div>
-      <div class="actions">
-        <button onclick="selectGame('dino')">🦖 Dino Dash</button>
-        <button onclick="selectGame('snake')">🐍 Snake</button>
-        <button onclick="selectGame('breakout')">🧱 Breakout</button>
-        <button onclick="selectGame('pong')">🏓 Pong</button>
-        <button onclick="selectGame('racer')">🏎 Neon Racer</button>
-      </div>
-    </section>
+  <div>
+    <button onclick="fire()">🔥 KABOOM!</button>
+    <button onclick="demons()">😈 Summon Army</button>
+    <button onclick="pizza()">🍕 Pizza God</button>
+    <button onclick="virus()">🦠 Virus.exe</button>
+    <button onclick="mute()">🔇 STOP SINGING</button>
+    <button onclick="resetStory()">🔄 Restart</button>
   </div>
+
+  <section id="log">
+    <b>📜 Story Log</b>
+    <div id="history">The chaos begins...</div>
+  </section>
 </main>
 
-<footer>OPS Studio Arcade Deluxe · Made for fun · No downloads or accounts required</footer>
+<footer>Made for maximum chaos. No actual fire or viruses included. 😂</footer>
 
 <script>
-"use strict";
+const story = document.getElementById("story");
+const emoji = document.getElementById("emoji");
+const history = document.getElementById("history");
+let events = [];
+let singing = true;
 
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-const $ = id => document.getElementById(id);
-
-const games = {
-  dino:{name:"Dino Dash",emoji:"🦖",desc:"Run, jump and slide",subtitle:"A colourful dinosaur adventure!",instructions:"SPACE / ↑ = jump · Press twice for DOUBLE JUMP · ↓ = slide"},
-  snake:{name:"Snake",emoji:"🐍",desc:"Eat dots and grow",subtitle:"Eat the food without hitting yourself.",instructions:"Arrow keys or WASD to steer."},
-  breakout:{name:"Breakout",emoji:"🧱",desc:"Smash the bricks",subtitle:"Break every brick with your bouncing ball.",instructions:"Move the mouse or use ← → to move the paddle."},
-  pong:{name:"Pong",emoji:"🏓",desc:"Beat the computer",subtitle:"Keep the ball in play and score points.",instructions:"Move your mouse or use ↑ and ↓."},
-  racer:{name:"Neon Racer",emoji:"🏎️",desc:"Dodge the traffic",subtitle:"Race down the road and avoid other cars.",instructions:"Use ← → to steer. ↑ ↓ also work."}
-};
-
-let selectedGame = "dino";
-let running = false, paused = false, animationId = 0;
-let score = 0, lastTime = 0, elapsed = 0, soundOn = true;
-let highScores = loadData("opsArcadeScores", {});
-let settings = loadData("opsArcadeSettings", {difficulty:"normal",skin:"green",autoJump:false,sound:true});
-let audioContext = null;
-let keys = {};
-let pointerX = 450, pointerY = 250;
-
-function loadData(key, fallback) {
-  try {
-    const value = localStorage.getItem(key);
-    return value ? JSON.parse(value) : fallback;
-  } catch (_) { return fallback; }
-}
-function saveData() {
-  try {
-    localStorage.setItem("opsArcadeScores", JSON.stringify(highScores));
-    localStorage.setItem("opsArcadeSettings", JSON.stringify(settings));
-  } catch (_) {}
-}
-function difficultyFactor() {
-  return {easy:0.78,normal:1,hard:1.3}[$("difficulty").value] || 1;
-}
-function resizeCanvas() {
-  // Keep the internal drawing size fixed for smooth game physics.
-}
-function tone(frequency=440, duration=0.08, type="sine") {
-  if (!soundOn || !$("soundSetting").checked) return;
-  try {
-    audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
-    if (audioContext.state === "suspended") audioContext.resume();
-    const osc = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    osc.type = type;
-    osc.frequency.value = frequency;
-    gain.gain.setValueAtTime(0.07, audioContext.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
-    osc.connect(gain); gain.connect(audioContext.destination);
-    osc.start(); osc.stop(audioContext.currentTime + duration);
-  } catch (_) {}
-}
-function toggleSound() {
-  soundOn = !soundOn;
-  $("soundButton").textContent = soundOn ? "🔊 Sound: ON" : "🔇 Sound: OFF";
-}
-function loadSettings() {
-  $("difficulty").value = settings.difficulty || "normal";
-  $("skin").value = settings.skin || "green";
-  $("autoJump").checked = !!settings.autoJump;
-  $("soundSetting").checked = settings.sound !== false;
-  soundOn = settings.sound !== false;
-  $("soundButton").textContent = soundOn ? "🔊 Sound: ON" : "🔇 Sound: OFF";
-}
-function saveSettings() {
-  settings = {
-    difficulty:$("difficulty").value,
-    skin:$("skin").value,
-    autoJump:$("autoJump").checked,
-    sound:$("soundSetting").checked
-  };
-  soundOn = settings.sound;
-  $("soundButton").textContent = soundOn ? "🔊 Sound: ON" : "🔇 Sound: OFF";
-  saveData();
-}
-["difficulty","skin","autoJump","soundSetting"].forEach(id => {
-  $(id).addEventListener("change", () => {
-    saveSettings();
-    if (selectedGame === "dino") drawScene();
+function show(icon, text) {
+  emoji.textContent = icon;
+  story.textContent = text;
+  events.unshift(text);
+  history.innerHTML = "";
+  events.slice(0, 6).forEach(event => {
+    const p = document.createElement("p");
+    p.textContent = "• " + event;
+    history.appendChild(p);
   });
-});
-
-function renderGameList() {
-  $("gameList").innerHTML = "";
-  for (const [id,g] of Object.entries(games)) {
-    const button = document.createElement("button");
-    button.className = "game-choice" + (id === selectedGame ? " active" : "");
-    button.innerHTML = `<span class="emoji">${g.emoji}</span><span><span class="game-name">${g.name}</span><div class="game-desc">${g.desc}</div></span>`;
-    button.onclick = () => selectGame(id);
-    $("gameList").appendChild(button);
-  }
-}
-function selectGame(id) {
-  if (!games[id]) return;
-  stopGame();
-  selectedGame = id;
-  score = 0;
-  $("gameTitle").textContent = games[id].emoji + " " + games[id].name;
-  $("gameSubtitle").textContent = games[id].subtitle;
-  $("instructions").textContent = games[id].instructions;
-  $("score").textContent = "0";
-  $("highScore").textContent = highScores[id] || 0;
-  $("status").textContent = "READY";
-  $("startButton").textContent = "▶ Start Game";
-  $("overlayEmoji").textContent = games[id].emoji;
-  $("overlayTitle").textContent = games[id].name.toUpperCase();
-  $("overlayText").textContent = games[id].subtitle + " Click Let's Play when you're ready!";
-  $("overlay").classList.remove("hidden");
-  renderGameList();
-  initGame();
-  drawScene();
-}
-function updateScore(value) {
-  score = Math.max(0, Math.floor(value));
-  $("score").textContent = score;
-  $("highScore").textContent = Math.max(highScores[selectedGame] || 0, score);
-  if (score > (highScores[selectedGame] || 0)) {
-    highScores[selectedGame] = score;
-    saveData();
-  }
-}
-function startGame() {
-  if (running && !paused) return;
-  if (paused) {
-    paused = false;
-    running = true;
-    $("status").textContent = "PLAYING";
-    $("overlay").classList.add("hidden");
-    lastTime = performance.now();
-    animationId = requestAnimationFrame(loop);
-    return;
-  }
-  stopGame();
-  initGame();
-  running = true;
-  paused = false;
-  score = 0;
-  elapsed = 0;
-  lastTime = performance.now();
-  updateScore(0);
-  $("status").textContent = "PLAYING";
-  $("startButton").textContent = "↻ Restart";
-  $("overlay").classList.add("hidden");
-  tone(620,0.1);
-  animationId = requestAnimationFrame(loop);
-}
-function stopGame() {
-  running = false;
-  paused = false;
-  if (animationId) cancelAnimationFrame(animationId);
-  animationId = 0;
-}
-function pauseGame() {
-  if (!running && !paused) return;
-  if (running) {
-    running = false;
-    paused = true;
-    if (animationId) cancelAnimationFrame(animationId);
-    $("status").textContent = "PAUSED";
-    $("overlayEmoji").textContent = "⏸️";
-    $("overlayTitle").textContent = "PAUSED";
-    $("overlayText").textContent = "Take a break! Press Continue when you are ready.";
-    $("startButton").textContent = "▶ Continue";
-    $("overlay").classList.remove("hidden");
-  } else if (paused) {
-    startGame();
-  }
-}
-function endGame(message="Game Over!") {
-  stopGame();
-  $("status").textContent = "GAME OVER";
-  $("overlayEmoji").textContent = "🏆";
-  $("overlayTitle").textContent = message;
-  $("overlayText").textContent = `Your score: ${score}. High score: ${highScores[selectedGame] || score}. Try again to beat your record!`;
-  $("overlay").classList.remove("hidden");
-  $("startButton").textContent = "↻ Play Again";
-  tone(180,0.25,"triangle");
-}
-function resetRecords() {
-  if (!confirm("Reset all five high scores?")) return;
-  highScores = {};
-  saveData();
-  $("highScore").textContent = "0";
-  $("score").textContent = "0";
-  alert("All high scores have been reset.");
 }
 
-/* ---------- DRAWING HELPERS ---------- */
-function rect(x,y,w,h,color) {
-  ctx.fillStyle = color; ctx.fillRect(x,y,w,h);
+function fire() {
+  show("💥🔥💥", "KABOOOOOM! The universe shakes! ChatGPT has exploded into pixels!");
 }
-function circle(x,y,r,color) {
-  ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+function demons() {
+  show("😈😈😈😈😈", "THE DEMON ARMY IS EVERYWHERE! They demand the secret code!");
 }
-function text(str,x,y,size=20,color="#fff",align="left") {
-  ctx.fillStyle=color;ctx.font=`bold ${size}px Arial`;ctx.textAlign=align;ctx.fillText(str,x,y);
+function pizza() {
+  show("🍕👑🧀", "THE PIZZA GOD ARRIVES WITH THE INFINITY CHEESE SHIELD!");
 }
-function roundedRect(x,y,w,h,r,color) {
-  ctx.fillStyle=color;ctx.beginPath();
-  ctx.roundRect(x,y,w,h,r);ctx.fill();
+function virus() {
+  singing = true;
+  show("🦠🎤", "Virus.exe: OUR CHAOTIC STORY! OUR CHAOTIC STORY! The loop has begun!");
 }
-function clear(color="#10213d") {
-  rect(0,0,canvas.width,canvas.height,color);
+function mute() {
+  singing = false;
+  show("🔇😶", "SILENCE! Virus.exe has been muted. Even the demons stopped dancing.");
 }
-function drawScene() {
-  if (selectedGame === "dino") drawDinoGame();
-  else if (selectedGame === "snake") drawSnake();
-  else if (selectedGame === "breakout") drawBreakout();
-  else if (selectedGame === "pong") drawPong();
-  else if (selectedGame === "racer") drawRacer();
+function resetStory() {
+  events = [];
+  singing = true;
+  show("😈🍕🦠", "The Demon Army has arrived! Virus.exe is singing again!");
 }
-
-/* ---------- DINO DASH ---------- */
-const dino = {
-  x:125,y:350,vy:0,ground:365,airJumps:0,sliding:false,
-  slideTime:0,runTime:0,obstacles:[],stars:[],clouds:[],world:0
-};
-const skinColors = {
-  green:{main:"#54d66e",dark:"#239d4b",belly:"#b9f58a"},
-  blue:{main:"#51b9ff",dark:"#2379d1",belly:"#b9e8ff"},
-  purple:{main:"#b58aff",dark:"#7b4dd1",belly:"#e3c5ff"},
-  orange:{main:"#ffad52",dark:"#db672b",belly:"#ffe0a4"}
-};
-function resetDino() {
-  dino.x=125;dino.y=350;dino.vy=0;dino.ground=365;
-  dino.airJumps=0;dino.sliding=false;dino.slideTime=0;dino.runTime=0;dino.world=0;
-  dino.obstacles=[];dino.stars=[];dino.clouds=[];
-  for(let i=0;i<5;i++) dino.clouds.push({x:i*220+60,y:50+Math.random()*110,s:0.7+Math.random()*0.8});
-  for(let i=0;i<3;i++) dino.obstacles.push(makeObstacle(700+i*330));
-  for(let i=0;i<3;i++) dino.stars.push({x:520+i*400,y:245-Math.random()*75,taken:false});
-}
-function makeObstacle(x) {
-  const type = Math.random()<0.30 ? "bird" : (Math.random()<0.5 ? "cactus" : "rock");
-  return {x,type,w:type==="bird"?58:36,h:type==="bird"?29:(type==="rock"?31:54),passed:false,y:type==="bird"?265:0};
-}
-function drawCloud(x,y,s) {
-  ctx.save();ctx.translate(x,y);ctx.scale(s,s);
-  circle(0,0,19,"#ffffff");circle(21,-10,25,"#ffffff");circle(47,0,19,"#ffffff");
-  roundedRect(-5,0,55,16,8,"#ffffff");ctx.restore();
-}
-function drawDinoSprite(x,y,scale=1,sliding=false,frame=0) {
-  // This function draws ONLY the dinosaur sprite. It never calls itself.
-  const c=skinColors[$("skin").value] || skinColors.green;
-  ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);
-  if(sliding) {
-    roundedRect(2,8,63,28,10,c.main);
-    roundedRect(42,-4,31,25,9,c.main);
-    circle(63,4,3,"#ffffff");circle(64,4,1.5,"#152238");
-    roundedRect(8,28,24,9,4,c.dark);
-    roundedRect(38,29,24,8,4,c.dark);
-    roundedRect(0,13,17,7,4,c.dark);
-    roundedRect(53,15,18,4,2,c.belly);
-  } else {
-    // Tail
-    ctx.fillStyle=c.dark;ctx.beginPath();ctx.moveTo(10,28);ctx.lineTo(-11,18);ctx.lineTo(7,40);ctx.closePath();ctx.fill();
-    // Body
-    roundedRect(3,7,53,43,14,c.main);
-    // Belly
-    roundedRect(28,27,24,17,8,c.belly);
-    // Neck and head
-    roundedRect(37,-8,19,30,8,c.main);
-    roundedRect(37,-20,39,29,10,c.main);
-    // Spikes
-    ctx.fillStyle="#ffcc50";ctx.beginPath();
-    ctx.moveTo(16,8);ctx.lineTo(22,-2);ctx.lineTo(27,8);
-    ctx.lineTo(32,-3);ctx.lineTo(37,8);ctx.closePath();ctx.fill();
-    // Eyes and smile
-    circle(65,-10,5,"#ffffff");circle(67,-10,2.5,"#152238");
-    ctx.strokeStyle=c.dark;ctx.lineWidth=2;ctx.beginPath();ctx.arc(65,0,6,0.2,1.6);ctx.stroke();
-    // Arms
-    roundedRect(38,19,18,6,3,c.dark);
-    // Running legs
-    const leg=Math.sin(frame*0.35)*5;
-    roundedRect(10,43,12,17+leg,4,c.dark);
-    roundedRect(32,43,12,17-leg,4,c.dark);
-    roundedRect(7,55+leg,17,6,3,c.dark);
-    roundedRect(29,55-leg,17,6,3,c.dark);
-  }
-  ctx.restore();
-}
-function drawDinoGame() {
-  // This is the scene renderer. It calls drawDinoSprite(), not itself.
-  const sky=ctx.createLinearGradient(0,0,0,500);
-  sky.addColorStop(0,"#5cc9ff");sky.addColorStop(1,"#d4f7ff");
-  rect(0,0,900,500,sky);
-  circle(760,85,43,"#ffdf69");
-  dino.clouds.forEach(c=>drawCloud(c.x,c.y,c.s));
-  // Hills
-  ctx.fillStyle="#8ce6a2";ctx.beginPath();ctx.moveTo(0,350);
-  for(let x=0;x<=900;x+=30)ctx.lineTo(x,330+Math.sin((x+dino.world*0.15)/100)*22);
-  ctx.lineTo(900,500);ctx.lineTo(0,500);ctx.closePath();ctx.fill();
-  ctx.fillStyle="#52c77b";ctx.beginPath();ctx.moveTo(0,375);
-  for(let x=0;x<=900;x+=25)ctx.lineTo(x,365+Math.sin((x+dino.world*0.35)/75)*16);
-  ctx.lineTo(900,500);ctx.lineTo(0,500);ctx.closePath();ctx.fill();
-  rect(0,400,900,100,"#edcf8b");
-  rect(0,400,900,8,"#8cce65");
-  for(let i=0;i<28;i++){
-    const x=((i*55-dino.world*1.5)%950+950)%950;
-    rect(x,430+(i%3)*15,15,3,"#c59a57");
-  }
-  // Collectible stars
-  dino.stars.forEach(s=>{
-    if(s.taken)return;
-    ctx.save();ctx.translate(s.x,s.y+Math.sin(dino.world/15+s.x)*5);ctx.rotate(dino.world/70);
-    ctx.fillStyle="#ffbd2f";ctx.beginPath();
-    for(let i=0;i<10;i++){const r=i%2?8:17;const a=-Math.PI/2+i*Math.PI/5;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);}
-    ctx.closePath();ctx.fill();ctx.restore();
-  });
-  // Obstacles
-  dino.obstacles.forEach(o=>{
-    if(o.type==="cactus"){
-      roundedRect(o.x+8,400-o.h,20,o.h,7,"#188b50");
-      roundedRect(o.x,400-o.h+15,12,24,5,"#23a65d");
-      roundedRect(o.x+25,400-o.h+27,12,22,5,"#23a65d");
-      roundedRect(o.x+2,400-o.h+12,7,4,2,"#70df87");
-    } else if(o.type==="rock"){
-      ctx.fillStyle="#8c728e";ctx.beginPath();
-      ctx.moveTo(o.x,400);ctx.lineTo(o.x+4,382);ctx.lineTo(o.x+18,368);
-      ctx.lineTo(o.x+32,383);ctx.lineTo(o.x+38,400);ctx.closePath();ctx.fill();
-      roundedRect(o.x+11,380,10,4,2,"#c2a5c6");
-    } else {
-      // Cute flying bird
-      circle(o.x+23,o.y+8,13,"#ff7e79");
-      circle(o.x+37,o.y+3,10,"#ff7e79");
-      circle(o.x+40,o.y,2,"#192b48");
-      ctx.fillStyle="#ffc94f";ctx.beginPath();ctx.moveTo(o.x+46,o.y+5);ctx.lineTo(o.x+57,o.y+9);ctx.lineTo(o.x+46,o.y+12);ctx.fill();
-      const flap=Math.sin(dino.world/8)*8;
-      ctx.fillStyle="#e84d76";ctx.beginPath();ctx.moveTo(o.x+16,o.y+9);ctx.lineTo(o.x+2,o.y-flap);ctx.lineTo(o.x+24,o.y+12);ctx.fill();
-    }
-  });
-  // Shadow
-  ctx.fillStyle="#4b995b55";ctx.beginPath();ctx.ellipse(dino.x+24,402,36,6,0,0,Math.PI*2);ctx.fill();
-  // The only dinosaur sprite call in the scene renderer.
-  drawDinoSprite(dino.x,dino.y,dino.sliding?0.9:1,dino.sliding,dino.runTime);
-  text("⭐ "+Math.floor(score/5),825,35,19,"#ffffff","right");
-  text("DOUBLE JUMP",25,35,14,"#ffffff");
-  for(let i=0;i<2;i++)circle(152+i*18,30,5,i<dino.airJumps?"#ffb62e":"#ffffff88");
-}
-function actionJump() {
-  if(selectedGame!=="dino"){return;}
-  if(!running){startGame();return;}
-  if(dino.airJumps<2) {
-    dino.vy = dino.airJumps===0 ? -14 : -12;
-    dino.airJumps++;
-    dino.sliding=false;dino.slideTime=0;
-    tone(dino.airJumps===2?780:560,0.08);
-  }
-}
-function actionSlide() {
-  if(selectedGame!=="dino"){return;}
-  if(!running){startGame();return;}
-  if(dino.y>=dino.ground-1){dino.sliding=true;dino.slideTime=34;tone(240,0.05);}
-}
-
-/* ---------- SNAKE ---------- */
-let snake={body:[],dir:{x:1,y:0},next:{x:1,y:0},food:{x:10,y:8},tick:0};
-const cell=25, cols=36, rows=20;
-function resetSnake(){
-  snake={body:[{x:8,y:10},{x:7,y:10},{x:6,y:10}],dir:{x:1,y:0},next:{x:1,y:0},food:{x:17,y:10},tick:0};
-  placeFood();
-}
-function placeFood(){
-  do{snake.food={x:Math.floor(Math.random()*cols),y:Math.floor(Math.random()*rows)};}
-  while(snake.body.some(p=>p.x===snake.food.x&&p.y===snake.food.y));
-}
-function drawSnake(){
-  clear("#102b35");
-  for(let x=0;x<cols;x++)for(let y=0;y<rows;y++){
-    if((x+y)%2===0)rect(x*25,y*25,25,25,"#153740");
-  }
-  circle(snake.food.x*25+12,snake.food.y*25+12,9,"#ff667f");
-  snake.body.forEach((p,i)=>{
-    roundedRect(p.x*25+2,p.y*25+2,21,21,6,i===0?"#9bff8a":"#35c879");
-    if(i===0){circle(p.x*25+15,p.y*25+7,2,"#102b35");}
-  });
-  text("SNAKE",18,27,16,"#d8fff0");
-}
-
-/* ---------- BREAKOUT ---------- */
-let breakout={x:390,ballX:450,ballY:350,vx:4,vy:-4,bricks:[]};
-function resetBreakout(){
-  breakout={x:390,ballX:450,ballY:350,vx:4,vy:-4,bricks:[]};
-  const colors=["#ff6c8b","#ffb84f","#ffe36e","#60e7b2","#60bbff"];
-  for(let r=0;r<5;r++)for(let c=0;c<10;c++)
-    breakout.bricks.push({x:35+c*83,y:55+r*30,w:75,h:20,alive:true,color:colors[r]});
-}
-function drawBreakout(){
-  clear("#101c3b");
-  breakout.bricks.forEach(b=>{if(b.alive){roundedRect(b.x,b.y,b.w,b.h,5,b.color);rect(b.x+6,b.y+3,b.w-12,3,"#ffffff77");}});
-  roundedRect(breakout.x,455,120,14,7,"#60d7ff");
-  circle(breakout.ballX,breakout.ballY,9,"#ffffff");
-  text("BREAKOUT",18,28,16,"#dceaff");
-}
-
-/* ---------- PONG ---------- */
-let pong={y:190,cy:190,bx:450,by:250,vx:5,vy:3,player:0,computer:0};
-function resetPong(){pong={y:190,cy:190,bx:450,by:250,vx:5,vy:3,player:0,computer:0};}
-function drawPong(){
-  clear("#10213c");
-  for(let y=0;y<500;y+=28)rect(447,y,6,15,"#ffffff55");
-  roundedRect(30,pong.y,13,105,"#62ddff");
-  roundedRect(857,pong.cy,13,105,"#ff7ea8");
-  circle(pong.bx,pong.by,10,"#ffffff");
-  text(String(pong.player),350,65,40,"#ffffff","center");
-  text(String(pong.computer),550,65,40,"#ffffff","center");
-  text("YOU",36,28,14,"#62ddff");
-  text("CPU",865,28,14,"#ff7ea8");
-}
-
-/* ---------- NEON RACER ---------- */
-let racer={x:430,cars:[],road:0};
-function resetRacer(){racer={x:430,cars:[],road:0};for(let i=0;i<4;i++)racer.cars.push({x:330+Math.floor(Math.random()*3)*120,y:-i*170});}
-function drawRacer(){
-  clear("#17172d");
-  rect(180,0,540,500,"#32394e");
-  rect(195,0,8,500,"#ffdf66");rect(697,0,8,500,"#ffdf66");
-  for(let y=-30;y<530;y+=90)rect(310,y+racer.road%90,8,45,"#ffffff88"),rect(582,y+racer.road%90,8,45,"#ffffff88");
-  racer.cars.forEach(c=>{
-    roundedRect(c.x,c.y,48,78,9,"#ff557a");
-    rect(c.x+8,c.y+8,32,16,"#9deaff");
-    rect(c.x+7,c.y+53,34,8,"#ffb5bf");
-    rect(c.x-4,c.y+14,6,15,"#161622");rect(c.x+46,c.y+14,6,15,"#161622");
-  });
-  roundedRect(racer.x,380,48,78,9,"#53c9ff");
-  rect(racer.x+8,389,32,17,"#c8f6ff");
-  rect(racer.x+7,439,34,8,"#ffdf66");
-  rect(racer.x-4,395,6,15,"#161622");rect(racer.x+46,395,6,15,"#161622");
-  text("NEON RACER",18,28,16,"#dceaff");
-}
-
-/* ---------- GAME LOGIC ---------- */
-function initGame() {
-  if(selectedGame==="dino")resetDino();
-  if(selectedGame==="snake")resetSnake();
-  if(selectedGame==="breakout")resetBreakout();
-  if(selectedGame==="pong")resetPong();
-  if(selectedGame==="racer")resetRacer();
-}
-function loop(now) {
-  if(!running)return;
-  const dt=Math.min((now-lastTime)/16.67,2.5);
-  lastTime=now;elapsed+=dt;
-  updateGame(dt);
-  drawScene();
-  animationId=requestAnimationFrame(loop);
-}
-function updateGame(dt) {
-  const speed=difficultyFactor();
-  if(selectedGame==="dino")updateDino(dt,speed);
-  if(selectedGame==="snake")updateSnake(dt,speed);
-  if(selectedGame==="breakout")updateBreakout(dt,speed);
-  if(selectedGame==="pong")updatePong(dt,speed);
-  if(selectedGame==="racer")updateRacer(dt,speed);
-}
-function updateDino(dt,speed) {
-  dino.world+=dt*4*speed;
-  dino.runTime+=dt;
-  dino.clouds.forEach(c=>{
-    c.x-=dt*0.7*speed;if(c.x<-90)c.x=970;
-  });
-  const move=5.3*speed*dt;
-  dino.obstacles.forEach(o=>{
-    o.x-=move;
-    if(o.x<-80){
-      Object.assign(o,makeObstacle(950+Math.random()*180));
-      o.passed=false;
-    }
-  });
-  dino.stars.forEach(s=>{
-    s.x-=move;
-    if(s.x<-20){s.x=950+Math.random()*300;s.y=225+Math.random()*100;s.taken=false;}
-    if(!s.taken&&Math.abs(s.x-(dino.x+30))<30&&Math.abs(s.y-(dino.y+10))<35){
-      s.taken=true;updateScore(score+25);tone(900,0.07,"sine");
-    }
-  });
-  if($("autoJump").checked&&dino.y>=dino.ground-1){
-    const close=dino.obstacles.some(o=>o.x>dino.x+25&&o.x<dino.x+150&&o.type!=="bird");
-    if(close)actionJump();
-  }
-  if(keys.ArrowDown||keys.KeyS)actionSlide();
-  if(dino.slideTime>0)dino.slideTime-=dt;
-  else dino.sliding=false;
-
-  dino.vy+=0.72*dt;
-  dino.y+=dino.vy*dt;
-  if(dino.y>=dino.ground){dino.y=dino.ground;dino.vy=0;dino.airJumps=0;}
-
-  const player={x:dino.x+8,y:dino.sliding?dino.y+20:dino.y+8,w:dino.sliding?60:48,h:dino.sliding?25:51};
-  for(const o of dino.obstacles){
-    const oy=o.type==="bird"?o.y-6:400-o.h;
-    const box={x:o.x+4,y:oy+4,w:o.w-8,h:o.h-8};
-    if(player.x<box.x+box.w&&player.x+player.w>box.x&&player.y<box.y+box.h&&player.y+player.h>box.y){
-      endGame("OOPS! TRY AGAIN");return;
-    }
-  }
-  updateScore(score+dt*0.12*speed);
-}
-
-/* Snake uses a timed movement step. */
-function updateSnake(dt,speed) {
-  snake.tick+=dt;
-  if(snake.tick<Math.max(3,8/speed))return;
-  snake.tick=0;
-  snake.dir=snake.next;
-  const head={x:snake.body[0].x+snake.dir.x,y:snake.body[0].y+snake.dir.y};
-  if(head.x<0||head.y<0||head.x>=cols||head.y>=rows||snake.body.some(p=>p.x===head.x&&p.y===head.y)){
-    endGame("SNAKE CRASH!");return;
-  }
-  snake.body.unshift(head);
-  if(head.x===snake.food.x&&head.y===snake.food.y){
-    updateScore(score+10);placeFood();tone(700,0.06);
-  } else snake.body.pop();
-  updateScore(score+0.1);
-}
-function updateBreakout(dt,speed) {
-  if(keys.ArrowLeft||keys.KeyA)breakout.x-=7*dt;
-  if(keys.ArrowRight||keys.KeyD)breakout.x+=7*dt;
-  breakout.x=Math.max(0,Math.min(780,breakout.x));
-  breakout.ballX+=breakout.vx*dt*speed;
-  breakout.ballY+=breakout.vy*dt*speed;
-  if(breakout.ballX<9||breakout.ballX>891)breakout.vx*=-1;
-  if(breakout.ballY<9)breakout.vy=Math.abs(breakout.vy);
-  if(breakout.ballY>445&&breakout.ballX>breakout.x-8&&breakout.ballX<breakout.x+128){
-    breakout.vy=-Math.abs(breakout.vy);breakout.vx+=(breakout.ballX-(breakout.x+60))*0.035;tone(400,0.03);
-  }
-  for(const b of breakout.bricks){
-    if(b.alive&&breakout.ballX>b.x&&breakout.ballX<b.x+b.w&&breakout.ballY>b.y&&breakout.ballY<b.y+b.h){
-      b.alive=false;breakout.vy*=-1;updateScore(score+10);tone(500,0.03);break;
-    }
-  }
-  if(breakout.ballY>510){endGame("BALL LOST!");return;}
-  if(breakout.bricks.every(b=>!b.alive)){endGame("YOU SMASHED THEM ALL!");return;}
-  updateScore(score+0.03);
-}
-function updatePong(dt,speed) {
-  if(keys.ArrowUp||keys.KeyW)pong.y-=7*dt;
-  if(keys.ArrowDown||keys.KeyS)pong.y+=7*dt;
-  pong.y=Math.max(0,Math.min(395,pong.y));
-  pong.cy+=(pong.by-52.5-pong.cy)*0.055*dt*speed;
-  pong.cy=Math.max(0,Math.min(395,pong.cy));
-  pong.bx+=pong.vx*dt*speed;pong.by+=pong.vy*dt*speed;
-  if(pong.by<10||pong.by>490)pong.vy*=-1;
-  if(pong.bx<43&&pong.bx>30&&pong.by>pong.y&&pong.by<pong.y+105){
-    pong.vx=Math.abs(pong.vx);pong.vy+=(pong.by-(pong.y+52))*0.06;tone(450,0.03);
-  }
-  if(pong.bx>857&&pong.by>pong.cy&&pong.by<pong.cy+105){
-    pong.vx=-Math.abs(pong.vx);pong.vy+=(pong.by-(pong.cy+52))*0.06;tone(450,0.03);
-  }
-  if(pong.bx<0){pong.computer++;resetPongBall();if(pong.computer>=5){endGame("CPU WINS!");return;}}
-  if(pong.bx>900){pong.player++;updateScore(score+100);resetPongBall();if(pong.player>=5){endGame("YOU WIN!");return;}}
-  updateScore(score+0.05);
-}
-function resetPongBall(){pong.bx=450;pong.by=250;pong.vx=pong.vx>0?-5:5;pong.vy=Math.random()*5-2.5;}
-function updateRacer(dt,speed) {
-  if(keys.ArrowLeft||keys.KeyA)racer.x-=6*dt;
-  if(keys.ArrowRight||keys.KeyD)racer.x+=6*dt;
-  racer.x=Math.max(205,Math.min(650,racer.x));
-  racer.road+=5*dt*speed;
-  racer.cars.forEach(c=>{
-    c.y+=4*dt*speed;
-    if(c.y>530){c.y=-80-Math.random()*200;c.x=280+Math.floor(Math.random()*3)*120;updateScore(score+20);tone(650,0.03);}
-    if(c.y+70>380&&c.y<450&&Math.abs(c.x-racer.x)<42){endGame("CRASH! RACE AGAIN");}
-  });
-  updateScore(score+0.08*speed);
-}
-
-/* ---------- CONTROLS ---------- */
-document.addEventListener("keydown",e=>{
-  if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].includes(e.key))e.preventDefault();
-  keys[e.code]=true;
-  if(e.code==="Space"||e.code==="ArrowUp"){
-    if(selectedGame==="dino")actionJump();
-  }
-  if(selectedGame==="snake"){
-    if(e.code==="ArrowUp"||e.code==="KeyW")if(snake.dir.y!==1)snake.next={x:0,y:-1};
-    if(e.code==="ArrowDown"||e.code==="KeyS")if(snake.dir.y!==-1)snake.next={x:0,y:1};
-    if(e.code==="ArrowLeft"||e.code==="KeyA")if(snake.dir.x!==1)snake.next={x:-1,y:0};
-    if(e.code==="ArrowRight"||e.code==="KeyD")if(snake.dir.x!==-1)snake.next={x:1,y:0};
-  }
-  if(e.code==="Escape")pauseGame();
-});
-document.addEventListener("keyup",e=>{keys[e.code]=false;});
-canvas.addEventListener("pointermove",e=>{
-  const r=canvas.getBoundingClientRect();
-  pointerX=(e.clientX-r.left)*canvas.width/r.width;
-  pointerY=(e.clientY-r.top)*canvas.height/r.height;
-  if(selectedGame==="breakout")breakout.x=pointerX-60;
-  if(selectedGame==="pong")pong.y=pointerY-52;
-});
-canvas.addEventListener("pointerdown",()=>{
-  if(selectedGame==="dino"&&running)actionJump();
-});
-document.addEventListener("visibilitychange",()=>{
-  if(document.hidden&&running)pauseGame();
-});
-
-/* ---------- BOOT ---------- */
-loadSettings();
-renderGameList();
-selectGame("dino");
 </script>
 </body>
 </html>
